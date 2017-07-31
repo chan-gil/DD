@@ -1,0 +1,16 @@
+Drone Input Table
+
+0	- 	left spin
+1	-	forward
+2 	- 	right spin
+3	- 	left
+4	- 	backward
+5 	- 	right
+6	- 	up
+7	-	down
+8	- 	hover
+
+
+100	- 	take off
+101	-	landing
+200	-	quit
