@@ -101,6 +101,14 @@ def command_GUI(drone):
     gui.add_printable_data("x",("navdata_demo","vx"))
     gui.add_printable_data("y",("navdata_demo","vy"))
     gui.add_printable_data("z",("navdata_demo","vz"))
+    gui.add_printable_data("latitude",("gps_info","latitude"))
+    gui.add_printable_data("longitude",("gps_info","longitude"))
+    gui.add_printable_data("elevation",("gps_info","elevation"))
+    gui.add_printable_data("hdop",("gps_info","hdop"))
+    gui.add_printable_data("data_available",("gps_info","data_available"))
+    gui.add_printable_data("zero_validated",("gps_info","zero_validated"))
+    gui.add_printable_data("wpt_validated",("gps_info","wpt_validated"))
+
     drone.set_callback(gui.callback) # Enable the GUI to receive data from the drone
     drone.set_config(activate_navdata=True,detect_tag=1)
     gui.start()
