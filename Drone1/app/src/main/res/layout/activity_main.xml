@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffffffff"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+        <Button
+            android:id="@+id/settingBtn"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="Setting" />
+        <Button
+            android:id="@+id/connectBtn"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="connect" />
+        <Button
+            android:id="@+id/disconnectBtn"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="disconnect" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/spinLeftBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"/>
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/forwardBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"/>
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/spinRightBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/leftBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"/>
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/backwardBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"/>
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/rightBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/upBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" />
+            <com.example.administrator.drone1.Buttons
+                android:id="@+id/downBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"/>
+            <Button
+                android:id="@+id/takeoffBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Take-off" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
