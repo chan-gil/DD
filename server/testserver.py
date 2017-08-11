@@ -4,6 +4,7 @@ from multiprocessing import Process, Queue, Lock, Event
 import ServerAR, GuiAR
 import sys
 import time
+import cv2
 
 def cout(lock, string):
     lock.acquire()
@@ -12,12 +13,19 @@ def cout(lock, string):
     finally:
         lock.release()
 
-def control(cmdQueue, lock, flag):
-    cout(lock, "control process started")
-    time.sleep(20)
-    cmdQueue.put('q')
-    flag.set()
-    cout(lock, "control process terminated")
+def video(videoQueue, lock):
+    cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
+    while videoQueue.empty():
+        # get current frame of video
+        running, frame = cam.read()
+        if running:
+            cv2.imshow('frame', frame)
+            cv2.waitKey(1)
+        else:
+            # error reading frame
+            cout(lock,'error reading video feed')
+    cam.release()
+    cv2.destroyAllWindows()
 
 def consumer(dataQueue, lock, conQueue):
     cout(lock, "consumer process started")
@@ -29,18 +37,19 @@ def consumer(dataQueue, lock, conQueue):
 
 if __name__ == '__main__':
     dataQueue = Queue()
-    cmdQueue = Queue()
+    serverQueue = Queue()
     lock = Lock()
     conQueue = Queue()
+    videoQueue = Queue()
 
-    server = ServerAR.ServerAR('192.168.123.1', 9003, dataQueue, cmdQueue, lock)
-    gui = GuiAR.GuiAR(cmdQueue, conQueue)
+    server = ServerAR.ServerAR('192.168.123.1', 9003, dataQueue, serverQueue, lock)
+    gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue)
     process_one = Process(target=gui.start, args=())
-    #process_two = Process(target=control, args=(cmdQueue, lock, flag))
+    process_two = Process(target=video, args=(videoQueue, lock))
     process_three = Process(target=consumer, args=(dataQueue, lock, conQueue))
 
     process_one.start()
-    #process_two.start()
+    process_two.start()
     process_three.start()
     server.start()
 
@@ -51,5 +60,5 @@ if __name__ == '__main__':
 
     server.join()
     process_one.join()
-    #process_two.join()
+    process_two.join()
     process_three.join()

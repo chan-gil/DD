@@ -4,7 +4,7 @@ import time
 from multiprocessing import Process, Queue, Lock, Event
 
 class GuiAR():
-    def __init__(self, cmdQueue, conQueue):
+    def __init__(self, serverQueue, conQueue, videoQueue):
         self.FPS = 5
         self.text = None
         self.text_label = None
@@ -12,8 +12,9 @@ class GuiAR():
         self.running = False
         self.last_key = None
         self.actions = dict()   # Actions associated to keys
-        self.cmdQueue = cmdQueue
+        self.serverQueue = serverQueue
         self.conQueue = conQueue
+        self.videoQueue = videoQueue
 
     def add_action(self,button_bind,function_call):
         "Add an action when a key is pressed"
@@ -43,11 +44,12 @@ class GuiAR():
             time.sleep(1.0/self.FPS) # Adjust FPS
 
     def red(self):
-        self.cmdQueue.put('r')
+        self.serverQueue.put('r')
 
     def close(self):
-        self.cmdQueue.put('q')
+        self.serverQueue.put('q')
         self.conQueue.put('q')
+        self.videoQueue.put('q')
         return True
 
             
