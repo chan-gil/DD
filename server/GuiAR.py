@@ -4,6 +4,7 @@ import time
 from multiprocessing import Process, Queue, Lock, Event
 
 class GuiAR():
+    "Create a simple window to control the drone"
     def __init__(self, serverQueue, conQueue, videoQueue):
         self.FPS = 5
         self.text = None
@@ -34,22 +35,38 @@ class GuiAR():
         self.fen.protocol("WM_DELETE_WINDOW", self.stop) # Called when the window is closed
 
         self.add_action('q', self.close)
-        buttonRed = Button(self.fen, text = 'Red', command = self.red)
-        buttonRed.pack()
-        
+        buttonRec = Button(self.fen, text = 'Record', command = self.rec)
+        buttonRec.pack()
+        buttonBin = Button(self.fen, text = 'Binary', command = self.bin)
+        buttonBin.pack()
+        buttonMen = Button(self.fen, text = 'Mean', command = self.men)
+        buttonMen.pack()
+        buttonGau = Button(self.fen, text = 'Gaussian', command = self.gau)
+        buttonGau.pack()
+        buttonOri = Button(self.fen, text = 'Original', command = self.ori)
+        buttonOri.pack()
         #self.fen.mainloop()
         self.running = True
         while self.running:
             self.fen.update()
             time.sleep(1.0/self.FPS) # Adjust FPS
 
-    def red(self):
-        self.serverQueue.put('r')
+    def rec(self):
+        self.videoQueue.put('r')
+    def bin(self):
+        self.videoQueue.put('b')
+    def men(self):
+        self.videoQueue.put('m')
+    def gau(self):
+        self.videoQueue.put('g')
+    def ori(self):
+        self.videoQueue.put('o')
 
     def close(self):
         self.serverQueue.put('q')
         self.conQueue.put('q')
         self.videoQueue.put('q')
+        self.stop()
         return True
 
             
