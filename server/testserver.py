@@ -37,12 +37,15 @@ def video(videoQueue, lock):
                 rec = not rec
                 if rec:
                     print "start recording"
-                    out = cv2.VideoWriter(initFileName(), fourcc, 25.0, (640,360))
+                    out = cv2.VideoWriter(initFileName(1), fourcc, 25.0, (640,360))
                 else:
                     print "stop recording"
                     out.release()
                 outMode = preOutMode
-            elif outMode =='b' or outMode == 'm' or outMode == 'g':
+            elif outMode == 'p':
+                cv2.imwrite(initFileName(0), frame)
+                outMode = preOutMode
+            if outMode =='b' or outMode == 'm' or outMode == 'g':
                 img_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 ret, frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
                 if outMode == 'm':
@@ -58,8 +61,13 @@ def video(videoQueue, lock):
     cam.release()
     cv2.destroyAllWindows()
 
-def initFileName():
-    fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".avi"
+def initFileName(num):
+    if num == 0:
+        print 'image save'
+        fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".png"
+    elif num == 1:
+        print 'video save'
+        fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".avi"
     return fileName
 
 

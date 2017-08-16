@@ -106,10 +106,10 @@ class ControlWindow():
         cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
         while self.running:
             self.fen.update()
-            running, frame = cam.read()
-            if running:
-                cv2.imshow('frame', frame)
-            #time.sleep(1.0/FPS) # Adjust FPS
+            # running, frame = cam.read()
+            # if running:
+            #     cv2.imshow('frame', frame)
+            time.sleep(1.0/FPS) # Adjust FPS
 
     def stop(self):
         "Stop the window"

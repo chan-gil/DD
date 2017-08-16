@@ -37,6 +37,8 @@ class GuiAR():
         self.add_action('q', self.close)
         buttonRec = Button(self.fen, text = 'Record', command = self.rec)
         buttonRec.pack()
+        buttonPic = Button(self.fen, text = 'Take Picture', command = self.pic)
+        buttonPic.pack()
         buttonBin = Button(self.fen, text = 'Binary', command = self.bin)
         buttonBin.pack()
         buttonMen = Button(self.fen, text = 'Mean', command = self.men)
@@ -61,6 +63,8 @@ class GuiAR():
         self.videoQueue.put('g')
     def ori(self):
         self.videoQueue.put('o')
+    def pic(self):
+        self.videoQueue.put('p')
 
     def close(self):
         self.serverQueue.put('q')
