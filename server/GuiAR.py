@@ -76,7 +76,9 @@ class GuiAR():
             
     def stop(self):
         "Stop the window"
-        self.close()
+        self.serverQueue.put('q')
+        self.conQueue.put('q')
+        self.videoQueue.put('q')
         try:    self.fen.destroy()
         except: pass
         try:    self.fen.quit()
