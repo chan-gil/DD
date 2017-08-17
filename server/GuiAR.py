@@ -48,10 +48,8 @@ class GuiAR():
         buttonOri = Button(self.fen, text = 'Original', command = self.ori)
         buttonOri.pack()
 
-#for image test
         buttonR = Button(self.fen, text = 'R', command = self.btnR)
         buttonR.pack()
-        
         #self.fen.mainloop()
         self.running = True
         while self.running:
@@ -60,7 +58,6 @@ class GuiAR():
 
     def btnR(self):
         self.serverQueue.put('r')
-
     def rec(self):
         self.videoQueue.put('r')
     def bin(self):
