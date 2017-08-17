@@ -1,4 +1,5 @@
-Drone Input Table
+Application
+Drone Table
 
 0	- 	left spin
 1	-	forward
@@ -9,8 +10,28 @@ Drone Input Table
 6	- 	up
 7	-	down
 8	- 	hover
-
-
 100	- 	take off
 101	-	landing
-200	-	quit
+200 -	quit
+201 -	stop / start recording
+202 - 	save current image
+250 -	original video
+251 -	binary filter
+252 -	mean filter
+253 -	gaussian filter
+300 - 	initial
+
+
+
+
+Server
+Drone Table
+
+outMode = 'q'	// quit
+outMode = 'r'	// recording start/stop
+outMode = 'p'	// save current frame
+
+outMode = 'o' 	// original video
+outMode = 'b'	// binary filter
+outMode = 'm'	// mean filter
+outMode = 'g'	// gaussian filter
