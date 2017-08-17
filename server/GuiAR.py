@@ -47,11 +47,19 @@ class GuiAR():
         buttonGau.pack()
         buttonOri = Button(self.fen, text = 'Original', command = self.ori)
         buttonOri.pack()
+
+#for image test
+        buttonR = Button(self.fen, text = 'R', command = self.btnR)
+        buttonR.pack()
+        
         #self.fen.mainloop()
         self.running = True
         while self.running:
             self.fen.update()
             time.sleep(1.0/self.FPS) # Adjust FPS
+
+    def btnR(self):
+        self.serverQueue.put('r')
 
     def rec(self):
         self.videoQueue.put('r')

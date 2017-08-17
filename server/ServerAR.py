@@ -87,6 +87,13 @@ class ServerAR(threading.Thread):
             if self.isConn and self.cmd == 'r':
                 self.conn.sendall("msg r\n")
                 self.cout("send " + self.cmd)
+
+                f = open('20122314.jpg','rb')# open file as binary
+                data = f.read()
+                self.conn.sendall(data)
+                f.flush()
+                f.close()
+                
         return False
                 
         
