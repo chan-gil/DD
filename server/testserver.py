@@ -86,9 +86,12 @@ def initFileName(num):
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
+
     while conQueue.empty():
         if not dataQueue.empty():
             dataIn = dataQueue.get()
+            cout(lock, dataIn)
+            '''
             if dataIn == '8':
                 print "hover"
                 drone.hover()
@@ -129,18 +132,18 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '252':
                 videoQueue.put('m')
             elif dataIn == '253':
-                videoQueue.put('g')
+                videoQueue.put('g')'''
 
-    drone.stop()
+    #drone.stop()
     print "consumer process terminated"
 
 if __name__ == '__main__':
     global drone
-    try :
+    '''try :
         drone = ARDroneLib.Drone("192.168.1.2")
     except IOError:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
-        sys.exit()
+        sys.exit()'''
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
@@ -156,25 +159,26 @@ if __name__ == '__main__':
     outMode = 'm'   // mean filter
     outMode = 'g'   // gaussian filterf
     '''
-    # server = ServerAR.ServerAR('192.168.123.1', 9003, dataQueue, serverQueue, lock)
+    drone = None
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue)
     process_one = Process(target=gui.start, args=())
-    process_two = Process(target=video, args=(videoQueue, lock))
+    #process_two = Process(target=video, args=(videoQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
 
     process_one.start()
-    process_two.start()
+    #process_two.start()
     thread_two.start()
-    # server.start()
+    server.start()
 
     #dataQueue.close()
     #cmdQueue.close()
     #dataQueue.join_thread()
     #cmdQueue.join_thread()
 
-    #server.join()
+    server.join()
     process_one.join()
-    process_two.join()
+    #process_two.join()
     thread_two.join()
 
     print "Test done"

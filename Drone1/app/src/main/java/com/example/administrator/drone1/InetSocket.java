@@ -2,13 +2,17 @@ package com.example.administrator.drone1;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -161,15 +165,36 @@ public class InetSocket {
                 String string;
                 while (true) {
                     do { string = br.readLine(); } while (string.length() == 0);
-
                     Message msg = Message.obtain();
                     msg.obj = string;
+
+                    //
+                    string = string.replaceAll("msg ", ""); // remove color codes in the line
+
+                    if (string.charAt(0) == 'r') {
+                        String[] str = string.split(" ");
+                        InputStream in = socket.getInputStream();
+                        //바이트 단위로 데이터를 읽는다, 외부로 부터 읽어들이는 역할을 담당
+                        BufferedInputStream bis = new BufferedInputStream(in);
+                        byte[] fileData = new byte[Integer.parseInt(str[1])];
+                        for (int i = 0; i < Integer.parseInt(str[1]); i++) {
+                            fileData[i] = (byte)bis.read();
+                        }
+                        try {
+                            Bitmap bmp = BitmapFactory.decodeByteArray(fileData, 0, fileData.length);
+                            msg.obj = bmp;
+                        } catch (Exception e) { Log.d("RecvThread", "Bitmap"); }
+
+                    }
+                    //
+
                     msg.setTarget(hMainThread);
                     msg.sendToTarget();
                     nMsgsRecv++;
                     Log.d("RecvThread", "[" + nMsgsRecv + "]th message received : " + string);
                 }
             } catch (Exception e) { // abnormal close
+                e.printStackTrace();
                 Log.d("InetSocket", "Socket closed abnormally");
             }
             resetServerStateFlag(flagConnected);

@@ -85,14 +85,20 @@ class ServerAR(threading.Thread):
                 self.cout("recv ended")
                 return True
             if self.isConn and self.cmd == 'r':
-                self.conn.sendall("msg r\n")
-                self.cout("send " + self.cmd)
+                self.lock.acquire()
+                try:
+                    f = open('20122314.jpg','rb')# open file as binary
+                    data = f.read()
+                    l = len(data)
 
-                f = open('20122314.jpg','rb')# open file as binary
-                data = f.read()
-                self.conn.sendall(data)
-                f.flush()
-                f.close()
+                    self.conn.sendall("msg r " + str(l) + "\n")
+                    print "send " + self.cmd
+                    
+                    self.conn.sendall(data)
+                    f.flush()
+                    f.close()
+                finally:
+                    self.lock.release()
                 
         return False
                 

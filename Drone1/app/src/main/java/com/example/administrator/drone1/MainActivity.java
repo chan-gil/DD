@@ -1,13 +1,17 @@
 package com.example.administrator.drone1;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private Buttons spinLeftBtn, forwardBtn, spinRightBtn;
     private Buttons leftBtn, backwardBtn, rightBtn;
     private Buttons upBtn, downBtn;
+    private ImageView imgView;
     private Buttons[] arrayBtns = new Buttons[8];
     private boolean isFly = false, isConnected = false;
 
@@ -28,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private Handler hPeerViews = new Handler() {
         public void handleMessage(Message msg) {
             if (echoServer.isAvailable() == false) return; // discard any key del ivered af\
-            char key = echoServer.getchar(msg); // key delivered from peer
-            Toast.makeText(MainActivity.this, "Received : " + key, Toast.LENGTH_SHORT).show();
+            imgView.setImageBitmap((Bitmap)msg.obj);
+
+            //char key = echoServer.getchar(msg); // key delivered from peer
+            //Toast.makeText(MainActivity.this, "Received : " + key, Toast.LENGTH_SHORT).show();
             return;
         };
     };
@@ -133,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        imgView = (ImageView) findViewById(R.id.imgView);
 
         spinLeftBtn = (Buttons) findViewById(R.id.spinLeftBtn);
         forwardBtn = (Buttons) findViewById(R.id.forwardBtn);
