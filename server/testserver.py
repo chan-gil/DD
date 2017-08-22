@@ -57,7 +57,7 @@ def video(videoQueue, lock):
                 outMode = preOutMode
             elif outMode == 'p':
                 cv2.imwrite(initFileName(0), frame)
-                outMode = preOutMode
+                outMode = preOutMode                
             if outMode =='b' or outMode == 'm' or outMode == 'g':
                 img_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 ret, frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
@@ -137,6 +137,41 @@ def consumer(dataQueue, lock, conQueue, drone):
     #drone.stop()
     print "consumer process terminated"
 
+def location(locationQueue, lock):
+
+    template = cv2.imread('drone.PNG')
+    templateGray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    cam = cv2.VideoCapture(0)
+    running = True
+    while running:
+        # get current frame of video
+        if not locationQueue.empty():
+            break
+        
+        running, frame = cam.read()
+        if running:
+            # Convert to grayscale
+            imageGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+ 
+            # Find template
+            result = cv2.matchTemplate(imageGray,templateGray, cv2.TM_CCOEFF)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+            top_left = max_loc
+            h,w = templateGray.shape
+            bottom_right = (top_left[0] + w, top_left[1] + h)
+            cv2.rectangle(frame,top_left, bottom_right,(0,0,255),4)
+
+            cv2.imshow('frame', frame)
+            cv2.waitKey(1)
+        else:
+            # error reading frame
+            cout(lock, 'error reading video feed')
+            
+    cam.release()
+    cv2.destroyAllWindows()
+        
+    
+
 if __name__ == '__main__':
     global drone
     '''try :
@@ -148,7 +183,8 @@ if __name__ == '__main__':
     serverQueue = Queue()
     lock = Lock()
     conQueue = Queue()
-    videoQueue = Queue()    
+    videoQueue = Queue()
+    locationQueue = Queue()
     print '''
     outMode = 'q'   // quit
     outMode = 'r'   // recording start/stop
@@ -160,24 +196,22 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     drone = None
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
-    gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue)
+    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
+    gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
     process_one = Process(target=gui.start, args=())
     #process_two = Process(target=video, args=(videoQueue, lock))
+    process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
 
     process_one.start()
     #process_two.start()
+    process_three.start()
     thread_two.start()
-    server.start()
+    #server.start()
 
-    #dataQueue.close()
-    #cmdQueue.close()
-    #dataQueue.join_thread()
-    #cmdQueue.join_thread()
-
-    server.join()
+    #server.join()
     process_one.join()
+    process_three.join()
     #process_two.join()
     thread_two.join()
 

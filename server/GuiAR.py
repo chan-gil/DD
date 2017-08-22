@@ -5,7 +5,7 @@ from multiprocessing import Process, Queue, Lock, Event
 
 class GuiAR():
     "Create a simple window to control the drone"
-    def __init__(self, serverQueue, conQueue, videoQueue):
+    def __init__(self, serverQueue, conQueue, videoQueue, locationQueue):
         self.FPS = 5
         self.text = None
         self.text_label = None
@@ -16,6 +16,7 @@ class GuiAR():
         self.serverQueue = serverQueue
         self.conQueue = conQueue
         self.videoQueue = videoQueue
+        self.locationQueue = locationQueue
 
     def add_action(self,button_bind,function_call):
         "Add an action when a key is pressed"
@@ -75,6 +76,7 @@ class GuiAR():
         self.serverQueue.put('q')
         self.conQueue.put('q')
         self.videoQueue.put('q')
+        self.locationQueue.put('q')
         self.stop()
         return True
 
