@@ -19,6 +19,18 @@ class ServerAR(threading.Thread):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((host, port))
         self.s.listen(1)
+        self.togle = True
+
+        self.f1 = open('20122314.jpg','rb')# open file as binary
+        self.data1 = self.f1.read()
+        self.l1 = len(self.data1)
+        self.f2 = open('2017-8-17-14-52-55.jpg','rb')# open file as binary
+        self.data2 = self.f2.read()
+        self.l2 = len(self.data2)
+        self.f1.flush()
+        self.f2.flush()
+        self.f1.close()
+        self.f2.close()
 
     def __del__(self):
         self.conn.close()
@@ -65,7 +77,7 @@ class ServerAR(threading.Thread):
                 except socket.error:
                     pass
                 except Exception, e :
-                    print e
+                    self.cout(e)
                     self.cout("recv errer : 1")
                     self.isConn = False
                     #drone.stop()
@@ -87,16 +99,19 @@ class ServerAR(threading.Thread):
             if self.isConn and self.cmd == 'r':
                 self.lock.acquire()
                 try:
-                    f = open('20122314.jpg','rb')# open file as binary
-                    data = f.read()
-                    l = len(data)
-
-                    self.conn.sendall("msg r " + str(l) + "\n")
-                    print "send " + self.cmd
-                    
-                    self.conn.sendall(data)
-                    f.flush()
-                    f.close()
+                    if self.togle:
+                        self.conn.sendall("msg r " + str(self.l1) + "\n")
+                        print "send " + self.cmd
+                        self.conn.sendall(self.data1)
+                        self.togle = not self.togle
+                    else :
+                        self.conn.sendall("msg r " + str(self.l2) + "\n")
+                        print "send " + self.cmd
+                        self.conn.sendall(self.data2)
+                        self.togle = not self.togle
+                except Exception, e :
+                    print e
+                    print "send errer : 1"
                 finally:
                     self.lock.release()
                 

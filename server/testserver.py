@@ -174,11 +174,11 @@ def location(locationQueue, lock):
 
 if __name__ == '__main__':
     global drone
-    '''try :
+    try :
         drone = ARDroneLib.Drone("192.168.1.2")
     except IOError:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
-        sys.exit()'''
+        sys.exit()
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
@@ -196,23 +196,23 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     drone = None
-    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
     process_one = Process(target=gui.start, args=())
-    #process_two = Process(target=video, args=(videoQueue, lock))
-    process_three = Process(target=location, args=(locationQueue, lock))
+    process_two = Process(target=video, args=(videoQueue, lock))
+    #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
 
     process_one.start()
-    #process_two.start()
-    process_three.start()
+    process_two.start()
+    #process_three.start()
     thread_two.start()
-    #server.start()
+    server.start()
 
-    #server.join()
+    server.join()
     process_one.join()
-    process_three.join()
-    #process_two.join()
+    #process_three.join()
+    process_two.join()q
     thread_two.join()
 
     print "Test done"

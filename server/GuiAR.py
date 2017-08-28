@@ -74,6 +74,7 @@ class GuiAR():
 
     def close(self):
         self.serverQueue.put('q')
+        self.serverQueue.put('q')
         self.conQueue.put('q')
         self.videoQueue.put('q')
         self.locationQueue.put('q')
@@ -83,6 +84,7 @@ class GuiAR():
             
     def stop(self):
         "Stop the window"
+        self.serverQueue.put('q')
         self.serverQueue.put('q')
         self.conQueue.put('q')
         self.videoQueue.put('q')
