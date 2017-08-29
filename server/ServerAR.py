@@ -5,12 +5,14 @@ from multiprocessing import Queue, Lock
 class ServerAR(threading.Thread):
 
     # exception handle request
-    def __init__(self, host, port, dataQueue, cmdQueue, lock):
+    def __init__(self, host, port, dataQueue, cmdQueue, frameQueue, frameFlagQueue, lock):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
         self.dataQueue = dataQueue
         self.cmdQueue = cmdQueue
+        self.frameQueue = frameQueue
+        self.frameFlagQueue = frameFlagQueue
         self.lock = lock
         self.cmd = 'N'
         self.isConn = False
@@ -21,16 +23,17 @@ class ServerAR(threading.Thread):
         self.s.listen(1)
         self.togle = True
 
-        self.f1 = open('20122314.jpg','rb')# open file as binary
+        self.f1 = open('drone.jpg','rb')# open file as binary
         self.data1 = self.f1.read()
         self.l1 = len(self.data1)
-        self.f2 = open('2017-8-17-14-52-55.jpg','rb')# open file as binary
+        self.f2 = open('map (2).jpg','rb')# open file as binary
         self.data2 = self.f2.read()
         self.l2 = len(self.data2)
         self.f1.flush()
         self.f2.flush()
         self.f1.close()
         self.f2.close()
+        self.frameFlagQueue.put('n')
 
     def __del__(self):
         self.conn.close()
@@ -58,11 +61,11 @@ class ServerAR(threading.Thread):
                 break
 
         # server run
-            while 1:
+            while True:
                 if not self.isConn:
                     break
                 if self.cmdCheck():
-                    break
+                    break                
 
                 try :
                     data = self.conn.recv(1024) #recieve message
@@ -82,6 +85,23 @@ class ServerAR(threading.Thread):
                     self.isConn = False
                     #drone.stop()
                     break
+
+                self.frame()
+
+    def frame(self):
+        if not self.frameQueue.empty():
+            self.lock.acquire()
+            try:
+                f = self.frameQueue.get()
+                self.conn.sendall("msg r " + str(len(f)) + "\n")
+                self.conn.sendall(f)
+            except Exception, e :
+                print e
+                print "send errer : 2"
+            finally:
+                self.lock.release()
+                self.frameFlagQueue.put('n')
+                
                 
     def cout(self, string):
         self.lock.acquire()

@@ -1,5 +1,4 @@
 from Tkinter import *
-#from tkinter import ttk
 import time
 from multiprocessing import Process, Queue, Lock, Event
 
@@ -80,7 +79,6 @@ class GuiAR():
         self.locationQueue.put('q')
         self.stop()
         return True
-
             
     def stop(self):
         "Stop the window"

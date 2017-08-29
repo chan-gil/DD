@@ -7,10 +7,10 @@ from multiprocessing import Process, Queue, Lock, Event
 from datetime import datetime
 import sys, time
 import threading
-import cv2
-import ServerAR, GuiAR
-import ARDroneLib, ARDroneGUI
-from ARDroneLog import Log
+#import cv2
+import ServerAR, GuiAR, VideoAR
+#import ARDroneLib, ARDroneGUI
+#from ARDroneLog import Log
 
 ###############
 ### GLOBALS ###
@@ -30,7 +30,7 @@ def cout(lock, string):
         print string
     finally:
         lock.release()
-
+'''
 def video(videoQueue, lock):
     cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -82,7 +82,7 @@ def initFileName(num):
         print 'video save'
         fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".avi"
     return fileName
-
+'''
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
@@ -174,17 +174,19 @@ def location(locationQueue, lock):
 
 if __name__ == '__main__':
     global drone
-    try :
+    '''try :
         drone = ARDroneLib.Drone("192.168.1.2")
     except IOError:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
-        sys.exit()
+        sys.exit()'''
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
     conQueue = Queue()
     videoQueue = Queue()
     locationQueue = Queue()
+    frameQueue = Queue()
+    frameFlagQueue = Queue()
     print '''
     outMode = 'q'   // quit
     outMode = 'r'   // recording start/stop
@@ -196,10 +198,11 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     drone = None
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
+    video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue)
     process_one = Process(target=gui.start, args=())
-    process_two = Process(target=video, args=(videoQueue, lock))
+    process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
 
