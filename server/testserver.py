@@ -30,59 +30,6 @@ def cout(lock, string):
         print string
     finally:
         lock.release()
-'''
-def video(videoQueue, lock):
-    cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    global running, rec, outMode
-    while running:
-        if not videoQueue.empty():
-            outMode = videoQueue.get()
-            cout(lock, "data = " + outMode)
-        # get current frame of video
-        running, frame = cam.read()
-        if running:
-            if rec:
-                out.write(frame)
-            if outMode == 'q':
-                break
-            elif outMode == 'r':
-                rec = not rec
-                if rec:
-                    print "start recording"
-                    out = cv2.VideoWriter(initFileName(1), fourcc, 25.0, (640,360))
-                else:
-                    print "stop recording"
-                    out.release()
-                outMode = preOutMode
-            elif outMode == 'p':
-                cv2.imwrite(initFileName(0), frame)
-                outMode = preOutMode                
-            if outMode =='b' or outMode == 'm' or outMode == 'g':
-                img_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                ret, frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
-                if outMode == 'm':
-                    frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,2)
-                elif outMode == 'g':
-                    frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
-            preOutMode = outMode
-            cv2.imshow('Video', frame)
-            cv2.waitKey(1)
-        else:
-            # error reading frame
-            cout(lock,'error reading video feed')
-    cam.release()
-    cv2.destroyAllWindows()
-
-def initFileName(num):
-    if num == 0:
-        print 'image save'
-        fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".jpeg"
-    elif num == 1:
-        print 'video save'
-        fileName = str(datetime.now().year) + "-" + str(datetime.now().month) + "-" + str(datetime.now().day) + "-" + str(datetime.now().hour) + "-" + str(datetime.now().minute) + "-" + str(datetime.now().second) + ".avi"
-    return fileName
-'''
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
@@ -215,7 +162,7 @@ if __name__ == '__main__':
     server.join()
     process_one.join()
     #process_three.join()
-    process_two.join()q
+    process_two.join()
     thread_two.join()
 
     print "Test done"

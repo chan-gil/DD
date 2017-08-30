@@ -2,6 +2,8 @@ from datetime import datetime
 import cv2
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
+from PIL import Image
+from io import BytesIO
 
 class VideoAR():
     def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue):
@@ -9,20 +11,21 @@ class VideoAR():
         self.videoQueue = videoQueue
         self.frameQueue = frameQueue
         self.frameFlagQueue = frameFlagQueue 
-        self.cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.running = True
         self.rec = False
         self.outMode = None
         self.frame = None
+        
 
     def video(self):
+        cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
         while self.running:
             if not self.videoQueue.empty():
                 self.outMode = self.videoQueue.get()
-                cout("data = " + self.outMode)
+                self.cout("data = " + self.outMode)
             # get current frame of video
-            self.running, self.frame = self.cam.read()
+            self.running, self.frame = cam.read()
             if self.running:
                 if self.rec:
                     out.write(self.frame)
@@ -54,14 +57,23 @@ class VideoAR():
             else:
                 # error reading frame
                 self.cout('error reading video feed')
-        self.cam.release()
+        cam.release()    
         cv2.destroyAllWindows()
 
     def tossFrame(self):
         if not self.frameFlagQueue.empty():
             self.frameFlagQueue.get()
-            if not self.frame == None:
-                self.frameQueue.put(self.frame)
+            try:
+                img = Image.fromarray(self.frame)
+                with BytesIO() as f:
+                    img.save(f, format='JPEG')
+                    self.frameQueue.put(f.getvalue())
+                    
+                #img.show()
+                
+            except Exception, e :
+                self.cout(e)
+                self.cout("toss error : 1")
         
     def initFileName(self, num):
         if num == 0:

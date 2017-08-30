@@ -1,6 +1,7 @@
 import socket
 import threading
 from multiprocessing import Queue, Lock
+import errno
 
 class ServerAR(threading.Thread):
 
@@ -36,7 +37,10 @@ class ServerAR(threading.Thread):
         self.frameFlagQueue.put('n')
 
     def __del__(self):
-        self.conn.close()
+        try:
+            self.conn.close()
+        except :
+            pass
 
     def run(self):
         # server connection
@@ -77,7 +81,11 @@ class ServerAR(threading.Thread):
                             if msg[2 * i + 1] == '200':
                                 #print "quit"
                                 raise Exception
-                except socket.error:
+                except socket.error, e:
+                    if e.errno == errno.ECONNRESET:
+                        self.isConn = False
+                        self.cout(e)
+                        self.cout("recv errer : 2")
                     pass
                 except Exception, e :
                     self.cout(e)
