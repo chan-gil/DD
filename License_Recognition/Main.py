@@ -36,7 +36,6 @@ def main():
         #     os.system("pause")                                  # pause so user can see error message
         #     return                                              # and exit program
         # end if
-        originalFrame = imgOriginalScene
         
         listOfPossiblePlates = DetectPlates.detectPlatesInScene(imgOriginalScene)           # detect plates
 
@@ -88,13 +87,13 @@ def main():
         if cv2.waitKey(1) == ord('q'):
             break
 
-        cv2.imshow("original", originalFrame)
-        #cv2.imshow("original", imgOriginalScene)
+        cv2.imshow("original", imgOriginalScene)
         
 
+    cv2.destroyAllWindows()
+    cam.release()
 
-
-
+    print "test done"
 
     return
 # end main
