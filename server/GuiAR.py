@@ -47,6 +47,8 @@ class GuiAR():
         buttonGau.pack()
         buttonOri = Button(self.fen, text = 'Original', command = self.ori)
         buttonOri.pack()
+        buttonTrack = Button(self.fen, text = 'Tracking', command = self.tracking)
+        buttonTrack.pack()
 
         buttonR = Button(self.fen, text = 'R', command = self.btnR)
         buttonR.pack()
@@ -70,6 +72,8 @@ class GuiAR():
         self.videoQueue.put('o')
     def pic(self):
         self.videoQueue.put('p')
+    def tracking(self):
+        self.videoQueue.put('t')
 
     def close(self):
         self.serverQueue.put('q')

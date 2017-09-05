@@ -142,7 +142,7 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     drone = None
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
     video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue)
     process_one = Process(target=gui.start, args=())
@@ -154,9 +154,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    server.start()
+    #server.start()
 
-    server.join()
+    #server.join()
     process_one.join()
     #process_three.join()
     process_two.join()
