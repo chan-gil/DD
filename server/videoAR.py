@@ -1,10 +1,28 @@
 from datetime import datetime
 import cv2
+import numpy as np
+import os
+
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
 #from PIL import Image
 from io import BytesIO
-import MainSung
+
+
+import DetectChars
+import DetectPlates
+import PossiblePlate
+
+# module level variables ##########################################################################
+SCALAR_BLACK = (0.0, 0.0, 0.0)
+SCALAR_WHITE = (255.0, 255.0, 255.0)
+SCALAR_YELLOW = (0.0, 255.0, 255.0)
+SCALAR_GREEN = (0.0, 255.0, 0.0)
+SCALAR_RED = (0.0, 0.0, 255.0)
+
+showSteps = True
+###################################################################################################
+
 
 class VideoAR():
     def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue):
@@ -17,12 +35,18 @@ class VideoAR():
         self.rec = False
         self.outMode = None
         self.frame = None
-        self.blnKNNTrainingSuccessful = DetectChars.loadKNNDataAndTrainKNN()         # attempt KNN training
-        if self.blnKNNTrainingSuccessful == False:                               # if KNN training was not successful
-            print "\nerror: KNN traning was not successful\n"               # show error message
+        
+
 
     def video(self):
         cam = cv2.VideoCapture(0)
+        self.lock.acquire()
+        try:
+            blnKNNTrainingSuccessful = DetectChars.loadKNNDataAndTrainKNN()         # attempt KNN training
+            if blnKNNTrainingSuccessful == False:                               # if KNN training was not successful
+                print "\nerror: KNN traning was not successful\n"               # show error message
+        finally:
+            self.lock.release()
         while self.running:
             if not self.videoQueue.empty():
                 self.outMode = self.videoQueue.get()
@@ -60,15 +84,17 @@ class VideoAR():
                         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
                 # tracking
                 elif self.outMode == 't':
-                    #self.licenseTracking()
-                    self.frame = MainSung.main(self.frame)
+                    self.lock.acquire()
+                    try:
+                        self.licenseTracking()
+                    finally:
+                        self.lock.release()
 
                 preOutMode = self.outMode
 
 
                 cv2.imshow('Video', self.frame)
                 #self.tossFrame()
-                
                 cv2.waitKey(1)
             else:
                 # error reading frame
@@ -78,8 +104,10 @@ class VideoAR():
 
 
     def licenseTracking(self):
-        listOfPossiblePlates = DetectPlates.detectPlatesInScene(self.frame)           # detect plates
 
+
+        listOfPossiblePlates = DetectPlates.detectPlatesInScene(self.frame)           # detect plates
+        #print listOfPossiblePlates
         listOfPossiblePlates = DetectChars.detectCharsInPlates(listOfPossiblePlates)        # detect chars in plates
 
         targetPlate = -1
@@ -117,7 +145,7 @@ class VideoAR():
             # end if
 
             if targetPlate != -1:
-                drawRedRectangleAroundPlate(self.frame, listOfPossiblePlates[targetPlate])             # draw red rectangle around plate
+                self.drawRedRectangleAroundPlate(self.frame, listOfPossiblePlates[targetPlate])             # draw red rectangle around plate
                 # print "\nlicense plate read from image = " + listOfPossiblePlates[targetPlate].strChars + "\n"       # write license plate text to std out
                 #writeLicensePlateCharsOnImage(imgOriginalScene, listOfPossiblePlates[targetPlate])           # write license plate text on the image
                 # print "target x : " + str(listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][0])
@@ -155,3 +183,12 @@ class VideoAR():
             print string
         finally:
             self.lock.release()
+
+    def drawRedRectangleAroundPlate(self, imgOriginalScene, licPlate):
+        p2fRectPoints = cv2.boxPoints(licPlate.rrLocationOfPlateInScene)            # get 4 vertices of rotated rect
+        cv2.line(imgOriginalScene, tuple(p2fRectPoints[0]), tuple(p2fRectPoints[1]), SCALAR_RED, 2)         # draw 4 red lines
+        cv2.line(imgOriginalScene, tuple(p2fRectPoints[1]), tuple(p2fRectPoints[2]), SCALAR_RED, 2)
+        cv2.line(imgOriginalScene, tuple(p2fRectPoints[2]), tuple(p2fRectPoints[3]), SCALAR_RED, 2)
+        cv2.line(imgOriginalScene, tuple(p2fRectPoints[3]), tuple(p2fRectPoints[0]), SCALAR_RED, 2)
+        cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
+    # end function
