@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import math
 import random
-import VideoAR
 
+import Main
 import Preprocess
 import PossibleChar
 
@@ -210,7 +210,7 @@ def detectCharsInPlates(listOfPossiblePlates):
 
         possiblePlate.strChars = recognizeCharsInPlate(possiblePlate.imgThresh, longestListOfMatchingCharsInPlate)
 
-        if VideoAR.showSteps == True: # show steps ###################################################
+        if Main.showSteps == True: # show steps ###################################################
             print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
             intPlateCounter = intPlateCounter + 1
             #cv2.waitKey(0)
@@ -406,7 +406,7 @@ def recognizeCharsInPlate(imgThresh, listOfMatchingChars):
         pt1 = (currentChar.intBoundingRectX, currentChar.intBoundingRectY)
         pt2 = ((currentChar.intBoundingRectX + currentChar.intBoundingRectWidth), (currentChar.intBoundingRectY + currentChar.intBoundingRectHeight))
 
-        cv2.rectangle(imgThreshColor, pt1, pt2, VideoAR.SCALAR_GREEN, 2)           # draw green box around the char
+        cv2.rectangle(imgThreshColor, pt1, pt2, Main.SCALAR_GREEN, 2)           # draw green box around the char
 
                 # crop char out of threshold image
         imgROI = imgThresh[currentChar.intBoundingRectY : currentChar.intBoundingRectY + currentChar.intBoundingRectHeight,
@@ -417,9 +417,9 @@ def recognizeCharsInPlate(imgThresh, listOfMatchingChars):
         npaROIResized = imgROIResized.reshape((1, RESIZED_CHAR_IMAGE_WIDTH * RESIZED_CHAR_IMAGE_HEIGHT))        # flatten image into 1d numpy array
 
         npaROIResized = np.float32(npaROIResized)               # convert from 1d numpy array of ints to 1d numpy array of floats
-        print 'flag1'
+
         retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 1)              # finally we can call findNearest !!!
-        print 'flag2'
+
         strCurrentChar = str(chr(int(npaResults[0][0])))            # get character from results
 
         strChars = strChars + strCurrentChar                        # append current char to full string

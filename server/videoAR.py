@@ -4,23 +4,7 @@ import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
 #from PIL import Image
 from io import BytesIO
-
-import numpy as np
-
-import DetectChars
-import DetectPlates
-import PossiblePlate
-
-# module level variables ##########################################################################
-SCALAR_BLACK = (0.0, 0.0, 0.0)
-SCALAR_WHITE = (255.0, 255.0, 255.0)
-SCALAR_YELLOW = (0.0, 255.0, 255.0)
-SCALAR_GREEN = (0.0, 255.0, 0.0)
-SCALAR_RED = (0.0, 0.0, 255.0)
-
-showSteps = True
-###################################################################################################
-
+import MainSung
 
 class VideoAR():
     def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue):
@@ -76,13 +60,15 @@ class VideoAR():
                         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
                 # tracking
                 elif self.outMode == 't':
-                    self.licenseTracking()
+                    #self.licenseTracking()
+                    self.frame = MainSung.main(self.frame)
 
                 preOutMode = self.outMode
 
 
                 cv2.imshow('Video', self.frame)
                 #self.tossFrame()
+                
                 cv2.waitKey(1)
             else:
                 # error reading frame
