@@ -43,7 +43,8 @@ class Drone():
         self.comThread.start()
         self.c = self.comThread.command # Alias
         self.navThread = None
-        
+        self.valocity = 0.1
+        self.valocity_rot = 0.3        
         
     def stop(self):
         "Stop the AR.Drone"
@@ -144,30 +145,34 @@ class Drone():
         ud = float2dec(up_down)
         ac = float2dec(angle_change)
         return self.c("AT*PCMD=#ID#,1,"+str(lr)+","+str(fb)+","+str(ud)+","+str(ac)+"\r")
-    def forward(self,speed=0.2):
+    def forward(self,speed=self.velocity):
         "Make the drone go forward, speed is between 0 and 1"
         return self.navigate(front_back=-speed)
-    def backward(self,speed=0.2):
+    def backward(self,speed=self.velocity):
         "Make the drone go backward, speed is between 0 and 1"
         return self.navigate(front_back=speed)
-    def left(self,speed=0.2):
+    def left(self,speed=self.velocity):
         "Make the drone go left, speed is between 0 and 1"
         return self.navigate(left_right=-speed)
-    def right(self,speed=0.2):
+    def right(self,speed=self.velocity):
         "Make the drone go right, speed is between 0 and 1"
         return self.navigate(left_right=speed)
-    def up(self,speed=0.2):
+    def up(self,speed=self.velocity):
         "Make the drone rise in the air, speed is between 0 and 1"
         return self.navigate(up_down=speed)
-    def down(self,speed=0.2):
+    def down(self,speed=self.velocity):
         "Make the drone descend, speed is between 0 and 1"
         return self.navigate(up_down=-speed)
-    def rotate_left(self,speed=0.8):
+    def rotate_left(self,speed=self.velocity_rot):
         "Make the drone turn left, speed is between 0 and 1"
         return self.navigate(angle_change=-speed)
-    def rotate_right(self,speed=0.8):
+    def rotate_right(self,speed=self.velocity_rot):
         "Make the drone turn right, speed is between 0 and 1"
         return self.navigate(angle_change=speed)
+    def velocityF(self, speed = 0.1):
+        self.velocity = speed
+    def velocity_rotF(self, speed = 0.3):
+        self.velocity_rot = speed
 
     ## Special
 

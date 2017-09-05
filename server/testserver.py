@@ -17,9 +17,6 @@ import ServerAR, GuiAR, VideoAR
 ###############
 last_coord=(None,None)
 all_coords = dict()
-rec = False
-running = True
-outMode = 'o'
 
 ##################
 #   FUNCTIONS    #
