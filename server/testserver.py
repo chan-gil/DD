@@ -54,6 +54,10 @@ def consumer(dataQueue, lock, conQueue, drone):
                 drone.rotate_left(speed)
             elif dataIn == '2':
                 drone.rotate_right(speed)
+            elif dataIn == '6':
+                drone.up(speed * 2)
+            elif dataIn == '7':
+                drone.down(speed * 2)
             elif dataIn == '200':
                 videoQueue.put('q')
             elif dataIn == '201':
@@ -68,9 +72,10 @@ def consumer(dataQueue, lock, conQueue, drone):
                 videoQueue.put('m')
             elif dataIn == '253':
                 videoQueue.put('g')
-    #drone.stop()
+    drone.land()
+    drone.stop()
     print "consumer process terminated"
-q
+
 def location(locationQueue, lock):
 
     template = cv2.imread('drone.PNG')
@@ -132,8 +137,8 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
-    gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
+    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
     video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
@@ -144,9 +149,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    server.start()
+    #server.start()
 
-    server.join()
+    #server.join()
     process_one.join()
     #process_three.join()
     process_two.join()
