@@ -25,16 +25,21 @@ showSteps = True
 
 
 class VideoAR():
-    def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue):
+    def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue, dataQueue):
         self.lock = lock
         self.videoQueue = videoQueue
         self.frameQueue = frameQueue
         self.frameFlagQueue = frameFlagQueue 
+        self.dataQueue = dataQueue
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.running = True
         self.rec = False
         self.outMode = None
         self.frame = None
+        self.windowX1 = 640 * 3 / 10
+        self.windowX2 = 640 * 7 / 10
+        self.windowY1 = 480 * 3 / 10
+        self.windowY2 = 480 * 7 / 10
         
 
 
@@ -53,6 +58,7 @@ class VideoAR():
                 self.cout("data = " + self.outMode)
             # get current frame of video
             self.running, self.frame = cam.read()
+            # print self.frame.shape
             if self.running:
                 ######## recording ########
                 if self.rec:
@@ -84,12 +90,12 @@ class VideoAR():
                         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
                 # tracking
                 elif self.outMode == 't':
-                    self.lock.acquire()
-                    try:
-                        self.licenseTracking()
-                    finally:
-                        self.lock.release()
-
+                    # self.lock.acquire()
+                    # try:
+                    #     #self.licenseTracking()
+                    # finally:
+                    #     self.lock.release()
+                    self.licenseTracking()
                 preOutMode = self.outMode
 
 
@@ -105,7 +111,6 @@ class VideoAR():
 
     def licenseTracking(self):
 
-
         listOfPossiblePlates = DetectPlates.detectPlatesInScene(self.frame)           # detect plates
         #print listOfPossiblePlates
         listOfPossiblePlates = DetectChars.detectCharsInPlates(listOfPossiblePlates)        # detect chars in plates
@@ -113,10 +118,12 @@ class VideoAR():
         targetPlate = -1
         #targetNum = raw_input("input number : ")
         targetNum = 3206
+        targetX = 0
+        targetY = 0
         
 
         if len(listOfPossiblePlates) == 0:                          # if no plates were found
-            print "\nno license plates were detected\n"             # inform user no plates were found
+            # print "\nno license plates were detected\n"             # inform user no plates were found
             pass
         else:                                                       # else
                     # if we get in here list of possible plates has at leat one plate
@@ -134,7 +141,7 @@ class VideoAR():
                     num = int(listOfPossiblePlates[numOfPlates].strChars) % 10000
                     if num == int(targetNum):
                         targetPlate = numOfPlates
-                        print "target detected\n\n"
+                        #print "target detected\n\n"
                 except:
                     pass
                 #cv2.imshow(str(numOfPlates), listOfPossiblePlates[numOfPlates].imgThresh)
@@ -148,9 +155,12 @@ class VideoAR():
                 self.drawRedRectangleAroundPlate(self.frame, listOfPossiblePlates[targetPlate])             # draw red rectangle around plate
                 # print "\nlicense plate read from image = " + listOfPossiblePlates[targetPlate].strChars + "\n"       # write license plate text to std out
                 #writeLicensePlateCharsOnImage(imgOriginalScene, listOfPossiblePlates[targetPlate])           # write license plate text on the image
-                # print "target x : " + str(listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][0])
-                # print "target y : " + str(listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][1])
-
+                #self.coordinatesQueue.put((listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][0],listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][1]))
+                targetX = listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][0]
+                targetY = listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][1]
+                # print "target x : " + str(targetX)
+                # print "target y : " + str(targetY)
+        self.boundCheck(targetPlate, targetX, targetY)
 
 
 
@@ -190,5 +200,21 @@ class VideoAR():
         cv2.line(imgOriginalScene, tuple(p2fRectPoints[1]), tuple(p2fRectPoints[2]), SCALAR_RED, 2)
         cv2.line(imgOriginalScene, tuple(p2fRectPoints[2]), tuple(p2fRectPoints[3]), SCALAR_RED, 2)
         cv2.line(imgOriginalScene, tuple(p2fRectPoints[3]), tuple(p2fRectPoints[0]), SCALAR_RED, 2)
+        cv2.rectangle(imgOriginalScene, (self.windowX1, self.windowY1), (self.windowX2, self.windowY2), SCALAR_GREEN, 2)
         cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
+    
+    def boundCheck(self, flag, x, y):
+        if flag == -1:
+            self.dataQueue.put('8')
+        elif x < self.windowX1:
+            self.dataQueue.put('5')
+        elif x > self.windowX2:
+            self.dataQueue.put('3')
+        elif y < self.windowY1:
+            self.dataQueue.put('7')
+        elif y > self.windowY2:
+            self.dataQueue.put('6')
+        else:
+            self.dataQueue.put('8')
+
     # end function

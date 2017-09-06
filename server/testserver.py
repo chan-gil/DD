@@ -4,6 +4,7 @@
 from multiprocessing import Process, Queue, Lock, Event
 #cd Desktop\gradu\server
 #python testserver.py
+# path : C:\Users\huiba\Downloads\Drone\test\DDL\server
 from datetime import datetime
 import sys, time
 import threading
@@ -30,54 +31,51 @@ def cout(lock, string):
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
-
     while conQueue.empty():
         if not dataQueue.empty():
             dataIn = dataQueue.get()
             cout(lock, dataIn)
-            '''
-            if dataIn == '8':
-                print "hover"
-                drone.hover()
-            elif dataIn == '100':
-                print "take off"
-                drone.takeoff()
-            elif dataIn == '101':
-                print "land"
-                drone.land()
-            elif dataIn == '1':
-                print "forward"
-                drone.forward()
-            elif dataIn == '4':
-                print "backward"
-                drone.backward()
-            elif dataIn == '3':
-                print "left"
-                drone.left()
-            elif dataIn == '5':
-                print "right"
-                drone.right()
-            elif dataIn == '0':
-                print "left spin"
-                drone.rotate_left()
-            elif dataIn == '2':
-                print "right spin"
-                drone.rotate_right()
-            elif dataIn == '200':
-                videoQueue.put('q')
-            elif dataIn == '201':
-                videoQueue.put('r')
-            elif dataIn == '202':
-                videoQueue.put('p')
-            elif dataIn == '250':
-                videoQueue.put('o')
-            elif dataIn == '251':
-                videoQueue.put('b')
-            elif dataIn == '252':
-                videoQueue.put('m')
-            elif dataIn == '253':
-                videoQueue.put('g')'''
-
+            # if dataIn == '8':
+            #     print "hover"
+            #     drone.hover()
+            # elif dataIn == '100':
+            #     print "take off"
+            #     drone.takeoff()
+            # elif dataIn == '101':
+            #     print "land"
+            #     drone.land()
+            # elif dataIn == '1':
+            #     print "forward"
+            #     drone.forward()
+            # elif dataIn == '4':
+            #     print "backward"
+            #     drone.backward()
+            # elif dataIn == '3':
+            #     print "left"
+            #     drone.left()
+            # elif dataIn == '5':
+            #     print "right"
+            #     drone.right()
+            # elif dataIn == '0':
+            #     print "left spin"
+            #     drone.rotate_left()
+            # elif dataIn == '2':
+            #     print "right spin"
+            #     drone.rotate_right()
+            # elif dataIn == '200':
+            #     videoQueue.put('q')
+            # elif dataIn == '201':
+            #     videoQueue.put('r')
+            # elif dataIn == '202':
+            #     videoQueue.put('p')
+            # elif dataIn == '250':
+            #     videoQueue.put('o')
+            # elif dataIn == '251':
+            #     videoQueue.put('b')
+            # elif dataIn == '252':
+            #     videoQueue.put('m')
+            # elif dataIn == '253':
+            #     videoQueue.put('g')
     #drone.stop()
     print "consumer process terminated"
 
@@ -144,7 +142,7 @@ if __name__ == '__main__':
     drone = None
     #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue)
-    video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue)
+    video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))

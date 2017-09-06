@@ -210,9 +210,9 @@ def detectCharsInPlates(listOfPossiblePlates):
 
         possiblePlate.strChars = recognizeCharsInPlate(possiblePlate.imgThresh, longestListOfMatchingCharsInPlate)
 
-        if VideoAR.showSteps == True: # show steps ###################################################
-            print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
-            intPlateCounter = intPlateCounter + 1
+        # if VideoAR.showSteps == True: # show steps ###################################################
+        #     print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
+        #     intPlateCounter = intPlateCounter + 1
             #cv2.waitKey(0)
         # end if # show steps #####################################################################
 
@@ -417,9 +417,9 @@ def recognizeCharsInPlate(imgThresh, listOfMatchingChars):
         npaROIResized = imgROIResized.reshape((1, RESIZED_CHAR_IMAGE_WIDTH * RESIZED_CHAR_IMAGE_HEIGHT))        # flatten image into 1d numpy array
 
         npaROIResized = np.float32(npaROIResized)               # convert from 1d numpy array of ints to 1d numpy array of floats
-        print 'flag1'
+
         retval, npaResults, neigh_resp, dists = kNearest.findNearest(npaROIResized, k = 1)              # finally we can call findNearest !!!
-        print 'flag2'
+
         strCurrentChar = str(chr(int(npaResults[0][0])))            # get character from results
 
         strChars = strChars + strCurrentChar                        # append current char to full string
