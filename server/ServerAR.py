@@ -24,17 +24,17 @@ class ServerAR(threading.Thread):
         self.s.listen(1)
         self.togle = True
 
-        self.f1 = open('drone.jpg','rb')# open file as binary
-        self.data1 = self.f1.read()
-        self.l1 = len(self.data1)
-        self.f2 = open('map (2).jpg','rb')# open file as binary
-        self.data2 = self.f2.read()
-        self.l2 = len(self.data2)
-        self.f1.flush()
-        self.f2.flush()
-        self.f1.close()
-        self.f2.close()
-        self.frameFlagQueue.put('n')
+        #self.f1 = open('drone.jpg','rb')# open file as binary
+        #self.data1 = self.f1.read()
+        #self.l1 = len(self.data1)
+        #self.f2 = open('map (2).jpg','rb')# open file as binary
+        #self.data2 = self.f2.read()
+        #self.l2 = len(self.data2)
+        #self.f1.flush()
+        #self.f2.flush()
+        #self.f1.close()
+        #self.f2.close()
+        #self.frameFlagQueue.put('n')
 
     def __del__(self):
         try:
@@ -125,6 +125,7 @@ class ServerAR(threading.Thread):
                 self.cout("recv ended")
                 return True
             if self.isConn and self.cmd == 'r':
+                '''
                 self.lock.acquire()
                 try:
                     if self.togle:
@@ -142,6 +143,7 @@ class ServerAR(threading.Thread):
                     print "send errer : 1"
                 finally:
                     self.lock.release()
+                    '''
                 
         return False
                 

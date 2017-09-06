@@ -44,7 +44,7 @@ class VideoAR():
 
 
     def video(self):
-        cam = cv2.VideoCapture(0)
+        cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
         self.lock.acquire()
         try:
             blnKNNTrainingSuccessful = DetectChars.loadKNNDataAndTrainKNN()         # attempt KNN training
