@@ -3,8 +3,10 @@ package com.example.administrator.drone1;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.jar.Manifest;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,13 +39,81 @@ public class MainActivity extends AppCompatActivity {
     private Handler hPeerViews = new Handler() {
         public void handleMessage(Message msg) {
             if (echoServer.isAvailable() == false) return; // discard any key del ivered af\
-            imgView.setImageBitmap((Bitmap)msg.obj);
+
+            try {
+                byte[] fileData =  (byte[])msg.obj;
+                Bitmap bmp = BitmapFactory.decodeByteArray(fileData, 0, fileData.length);
+                if (bmp != null) imgView.setImageBitmap(bmp);
+
+                /* // extern save
+                if(isExternalStorageWritable()) {
+                    File file = getAlbumStorageDir("drone");
+                    String path = file.getPath().toString();
+                    String fileName = path + "/pic.jpg";
+                    byte[] fileData =  (byte[])msg.obj;
+                    FileOutputStream fos = new FileOutputStream(fileName);
+                    fos.write(fileData);
+                    fos.close();
+                } */
+                /*
+                Log.d("MainActivity", "save" + getFilesDir());
+                byte[] fileData =  (byte[])msg.obj;
+                FileOutputStream fos = new FileOutputStream(getFilesDir() + "/testfile.jpeg");
+                fos.write(fileData);
+                fos.close();
+                Log.d("MainActivity", "save");
+*/
+      //          File imgFile = new  File(getFilesDir() + "/testfile.jpeg");
+
+//                if(imgFile.exists()){
+  //                  Log.d("MainActivity", "open");
+    //                Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+//
+  //                  imgView.setImageBitmap((Bitmap)msg.obj);
+    //            }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+
+            //imgView.setImageBitmap((Bitmap)msg.obj);
 
             //char key = echoServer.getchar(msg); // key delivered from peer
             //Toast.makeText(MainActivity.this, "Received : " + key, Toast.LENGTH_SHORT).show();
             return;
         };
     };
+
+    public File getAlbumStorageDir(String albumName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), albumName);
+        Log.d("MainActivity", file.getPath());
+        if (!file.mkdirs()) {
+            Log.d("MainActivity", "Directory not created");
+        }
+        return file;
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
 
     private void startSettingActivity(int reqCode) {
         Intent intent = new Intent(MainActivity.this, SettingActivity.class);
@@ -139,6 +213,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+
         setContentView(R.layout.activity_main);
 
         imgView = (ImageView) findViewById(R.id.imgView);
@@ -202,12 +279,16 @@ public class MainActivity extends AppCompatActivity {
                 if (count == 1 && !pastCmd ) {
                     if (!echoServer.send(id)) {
                         Toast.makeText(MainActivity.this, "Connection Error!", Toast.LENGTH_SHORT).show();
+                        isConnected = false;
+                        isFly = false;
                     } else {
                         pastCmd = true;
                     }
                 } else if (count == 0) {
                     if (!echoServer.send(8)) {
                         Toast.makeText(MainActivity.this, "Connection Error!", Toast.LENGTH_SHORT).show();
+                        isConnected = false;
+                        isFly = false;
                     } else {
                         pastCmd = false;
                     }

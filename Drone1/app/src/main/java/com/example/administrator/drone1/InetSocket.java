@@ -164,11 +164,15 @@ public class InetSocket {
                 BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String string;
                 while (true) {
-                    do { string = br.readLine(); } while (string.length() == 0);
+                    do {
+                        string = br.readLine();
+//                        Log.d("RecvThread", "do");
+                    } while (!string.contains("msg "));
+                    string = string.substring(string.indexOf("msg "));
                     Message msg = Message.obtain();
                     msg.obj = string;
+                    Log.d("RecvThread", string);
 
-                    //
                     string = string.replaceAll("msg ", ""); // remove color codes in the line
 
                     if (string.charAt(0) == 'r') {
@@ -177,13 +181,34 @@ public class InetSocket {
                         //바이트 단위로 데이터를 읽는다, 외부로 부터 읽어들이는 역할을 담당
                         BufferedInputStream bis = new BufferedInputStream(in);
                         byte[] fileData = new byte[Integer.parseInt(str[1])];
-                        for (int i = 0; i < Integer.parseInt(str[1]); i++) {
-                            fileData[i] = (byte)bis.read();
+
+                        int left = fileData.length;
+                        int pos = 0;
+                        while(left >0){
+                            int n = bis.read(fileData, pos, left);
+                            left -= n;
+                            pos += n;
+  //                          Log.d("RecvThread", left + "");
                         }
-                        try {
-                            Bitmap bmp = BitmapFactory.decodeByteArray(fileData, 0, fileData.length);
-                            msg.obj = bmp;
-                        } catch (Exception e) { Log.d("RecvThread", "Bitmap"); }
+
+                        /*
+                        for (int i = 0; i < Integer.parseInt(str[1]); i++) {
+                            //fileData[i] = (byte)bis.read();
+
+                            Log.d("RecvThread", i + "");
+
+                            if (in.read(fileData) <= 0) {
+                                break;
+                            }
+
+                            if (i > 22000) Log.d("RecvThread", i + "");
+                        }
+*/
+                        //try {
+                        //    Bitmap bmp = BitmapFactory.decodeByteArray(fileData, 0, fileData.length);
+                            Log.d("RecvThread", "recv finishq");
+                            msg.obj = fileData;
+                        //} catch (Exception e) { Log.d("RecvThread", "Bitmap"); }
 
                     }
                     //
