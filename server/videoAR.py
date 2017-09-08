@@ -36,11 +36,11 @@ class VideoAR():
         self.rec = False
         self.outMode = None
         self.frame = None
-        self.windowX1 = 640 * 3 / 10
-        self.windowX2 = 640 * 7 / 10
-        self.windowY1 = 480 * 3 / 10
-        self.windowY2 = 480 * 7 / 10
-        
+        self.windowX1 = 640 * 4 / 10
+        self.windowX2 = 640 * 6 / 10
+        self.windowY1 = 360 * 4 / 10
+        self.windowY2 = 360 * 6 / 10
+        self.hoverCount = 0
 
 
     def video(self):
@@ -58,7 +58,7 @@ class VideoAR():
                 self.cout("data = " + self.outMode)
             # get current frame of video
             self.running, self.frame = cam.read()
-            # print self.frame.shape
+            #self.cout(str(self.frame.shape))
             if self.running:
                 ######## recording ########
                 if self.rec:
@@ -116,8 +116,8 @@ class VideoAR():
         listOfPossiblePlates = DetectChars.detectCharsInPlates(listOfPossiblePlates)        # detect chars in plates
 
         targetPlate = -1
-        #targetNum = raw_input("input number : ")
-        targetNum = 3206
+        # targetNum = raw_input("input number : ")
+        targetNum = 3108
         targetX = 0
         targetY = 0
         
@@ -205,16 +205,25 @@ class VideoAR():
     
     def boundCheck(self, flag, x, y):
         if flag == -1:
-            self.dataQueue.put('8')
-        elif x < self.windowX1:
-            self.dataQueue.put('5')
-        elif x > self.windowX2:
+            self.hoverCount = self.hoverCount - 1
+            if self.hoverCount <= 0:
+                self.dataQueue.put('8')
+                self.hoverCount = 0
+            return
+
+        self.hoverCount = 3
+        if x < self.windowX1:
             self.dataQueue.put('3')
-        elif y < self.windowY1:
-            self.dataQueue.put('7')
-        elif y > self.windowY2:
+        elif x > self.windowX2:
+            self.dataQueue.put('5')
+        # else:
+        #     self.dataQueue.put('8')
+
+        if y < self.windowY1:
             self.dataQueue.put('6')
-        else:
-            self.dataQueue.put('8')
+        elif y > self.windowY2:
+            self.dataQueue.put('7')
+        # else:
+        #     self.dataQueue.put('8')
 
     # end function

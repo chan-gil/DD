@@ -210,9 +210,9 @@ def detectCharsInPlates(listOfPossiblePlates):
 
         possiblePlate.strChars = recognizeCharsInPlate(possiblePlate.imgThresh, longestListOfMatchingCharsInPlate)
 
-        # if VideoAR.showSteps == True: # show steps ###################################################
-        #     print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
-        #     intPlateCounter = intPlateCounter + 1
+        if VideoAR.showSteps == True: # show steps ###################################################
+            print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
+            intPlateCounter = intPlateCounter + 1
             #cv2.waitKey(0)
         # end if # show steps #####################################################################
 

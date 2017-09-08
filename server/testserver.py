@@ -31,7 +31,7 @@ def cout(lock, string):
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
-    speed = 0.1
+    speed = 0.15
     while conQueue.empty():
         if not dataQueue.empty():
             dataIn = dataQueue.get()
@@ -55,9 +55,9 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '2':
                 drone.rotate_right(speed)
             elif dataIn == '6':
-                drone.up(speed * 2)
+                drone.up(speed)
             elif dataIn == '7':
-                drone.down(speed * 2)
+                drone.down(speed)
             elif dataIn == '200':
                 videoQueue.put('q')
             elif dataIn == '201':

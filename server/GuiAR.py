@@ -54,6 +54,8 @@ class GuiAR():
         buttonTakeoff.pack()
         buttonLand = Button(self.fen, text = 'Land', command = self.land)
         buttonLand.pack()
+        buttonHover = Button(self.fen, text = 'Hover', command = self.hover)
+        buttonHover.pack()
         buttonR = Button(self.fen, text = 'R', command = self.btnR)
         buttonR.pack()
 
@@ -82,7 +84,9 @@ class GuiAR():
     def takeoff(self):
         self.dataQueue.put('100')
     def land(self):
-        self.dataQueue.put('101')    
+        self.dataQueue.put('101')
+    def hover(self):
+        self.dataQueue.put('8') 
 
     def close(self):
         self.serverQueue.put('q')
