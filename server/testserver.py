@@ -31,7 +31,7 @@ def cout(lock, string):
 
 def consumer(dataQueue, lock, conQueue, drone):
     cout(lock, "consumer process started")
-    speed = 0.15
+    speed = 0.1
     while conQueue.empty():
         if not dataQueue.empty():
             dataIn = dataQueue.get()
@@ -45,19 +45,19 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '1':
                 drone.forward(speed)
             elif dataIn == '4':
-                drone.backward(speed)
+                drone.backward(speed * 4)
             elif dataIn == '3':
-                drone.left(speed)
+                drone.left(speed * 2)
             elif dataIn == '5':
-                drone.right(speed)
+                drone.right(speed * 2)
             elif dataIn == '0':
-                drone.rotate_left(speed)
+                drone.rotate_left(speed * 4)
             elif dataIn == '2':
-                drone.rotate_right(speed)
+                drone.rotate_right(speed * 2)
             elif dataIn == '6':
-                drone.up(speed)
+                drone.up(speed * 2)
             elif dataIn == '7':
-                drone.down(speed)
+                drone.down(speed * 2)
             elif dataIn == '200':
                 videoQueue.put('q')
             elif dataIn == '201':
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
     video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
     process_one = Process(target=gui.start, args=())
@@ -149,9 +149,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    server.start()
+    #server.start()
 
-    server.join()
+    #server.join()
     process_one.join()
     #process_three.join()
     process_two.join()

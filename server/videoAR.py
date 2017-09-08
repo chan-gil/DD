@@ -5,7 +5,7 @@ import os
 
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
-from PIL import Image
+#from PIL import Image
 from io import BytesIO
 
 
@@ -41,7 +41,7 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
-        self.baseS = 11000
+        self.baseS = 9000
         self.baseR = 4
 
 
@@ -102,7 +102,7 @@ class VideoAR():
 
 
                 cv2.imshow('Video', self.frame)
-                self.tossFrame()
+                #self.tossFrame()
                 cv2.waitKey(1)
             else:
                 # error reading frame
@@ -181,7 +181,7 @@ class VideoAR():
                 self.hoverCount = 0
             return
 
-        self.hoverCount = 3
+        self.hoverCount = 10
         '''# move1
         if x < self.windowX1:
             self.dataQueue.put('3') # left
@@ -211,10 +211,12 @@ class VideoAR():
 
         s = a * b # box size
 
-        if s < self.baseS:
-            self.dataQueue.put('1') # forward
-        elif s > self.baseS:
-            self.dataQueue.put('7') # backward
+        if x < self.windowX1:
+            self.dataQueue.put('0') # left spin
+        elif x > self.windowX2:
+            self.dataQueue.put('2') # rignt spin
+        else:
+            self.dataQueue.put('8')
 
         if not (r < self.baseR * 0.76 or r > self.baseR * 1.25):
             return
@@ -222,14 +224,16 @@ class VideoAR():
         if  s > self.baseS * 0.75 and s < self.baseS * 1.25:
             self.dataQueue.put('8')
             return
+
+        if s < self.baseS:
+            self.dataQueue.put('1') # forward
+        # elif s > self.baseS:
+            #self.dataQueue.put('7') # backward
+
+
         
         
-        if x < self.windowX1:
-            self.dataQueue.put('0') # left spin
-        elif x > self.windowX2:
-            self.dataQueue.put('2') # rignt spin
-        # else:
-        #     self.dataQueue.put('8')
+
 
     # end function
 
@@ -238,7 +242,7 @@ class VideoAR():
             self.frameFlagQueue.get()
             #self.cout("videoF")
             try:
-                img = Image.fromarray(self.frame)
+                #img = Image.fromarray(self.frame)
                 with BytesIO() as f:
                     img.save(f, format='JPEG')
                     self.frameQueue.put(f.getvalue())
