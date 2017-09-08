@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import math
 import random
-import VideoAR
+import videoAR
 
 import Preprocess
 import PossibleChar
@@ -210,7 +210,7 @@ def detectCharsInPlates(listOfPossiblePlates):
 
         possiblePlate.strChars = recognizeCharsInPlate(possiblePlate.imgThresh, longestListOfMatchingCharsInPlate)
 
-        if VideoAR.showSteps == True: # show steps ###################################################
+        if videoAR.showSteps == True: # show steps ###################################################
             print "chars found in plate number " + str(intPlateCounter) + " = " + possiblePlate.strChars + ", click on any image and press a key to continue . . ."
             intPlateCounter = intPlateCounter + 1
             #cv2.waitKey(0)
@@ -406,7 +406,7 @@ def recognizeCharsInPlate(imgThresh, listOfMatchingChars):
         pt1 = (currentChar.intBoundingRectX, currentChar.intBoundingRectY)
         pt2 = ((currentChar.intBoundingRectX + currentChar.intBoundingRectWidth), (currentChar.intBoundingRectY + currentChar.intBoundingRectHeight))
 
-        cv2.rectangle(imgThreshColor, pt1, pt2, VideoAR.SCALAR_GREEN, 2)           # draw green box around the char
+        cv2.rectangle(imgThreshColor, pt1, pt2, videoAR.SCALAR_GREEN, 2)           # draw green box around the char
 
                 # crop char out of threshold image
         imgROI = imgThresh[currentChar.intBoundingRectY : currentChar.intBoundingRectY + currentChar.intBoundingRectHeight,

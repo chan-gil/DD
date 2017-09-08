@@ -34,7 +34,7 @@ class ServerAR(threading.Thread):
         #self.f2.flush()
         #self.f1.close()
         #self.f2.close()
-        #self.frameFlagQueue.put('n')
+        self.frameFlagQueue.put('n')
 
     def __del__(self):
         try:
@@ -103,6 +103,7 @@ class ServerAR(threading.Thread):
                 f = self.frameQueue.get()
                 self.conn.sendall("msg r " + str(len(f)) + "\n")
                 self.conn.sendall(f)
+                #print "serverF"
             except Exception, e :
                 print e
                 print "send errer : 2"

@@ -9,7 +9,7 @@ from datetime import datetime
 import sys, time
 import threading
 #import cv2
-import ServerAR, GuiAR, VideoAR
+import ServerAR, GuiAR, videoAR
 import ARDroneLib, ARDroneGUI
 #from ARDroneLog import Log
 
@@ -137,9 +137,9 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
-    video = VideoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
+    video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
@@ -149,9 +149,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    #server.start()
+    server.start()
 
-    #server.join()
+    server.join()
     process_one.join()
     #process_three.join()
     process_two.join()

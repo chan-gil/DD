@@ -5,7 +5,7 @@ import os
 
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
-#from PIL import Image
+from PIL import Image
 from io import BytesIO
 
 
@@ -41,6 +41,8 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
+        self.baseS = 4500
+        self.baseR = 7
 
 
     def video(self):
@@ -100,7 +102,7 @@ class VideoAR():
 
 
                 cv2.imshow('Video', self.frame)
-                #self.tossFrame()
+                self.tossFrame()
                 cv2.waitKey(1)
             else:
                 # error reading frame
@@ -162,13 +164,81 @@ class VideoAR():
                 # print "target y : " + str(targetY)
         self.boundCheck(targetPlate, targetX, targetY)
 
+    def drawRedRectangleAroundPlate(self, imgOriginalScene, licPlate):
+        self.p2fRectPoints = cv2.boxPoints(licPlate.rrLocationOfPlateInScene)            # get 4 vertices of rotated rect
+        cv2.line(imgOriginalScene, tuple(self.p2fRectPoints[0]), tuple(self.p2fRectPoints[1]), SCALAR_RED, 2)         # draw 4 red lines
+        cv2.line(imgOriginalScene, tuple(self.p2fRectPoints[1]), tuple(self.p2fRectPoints[2]), SCALAR_RED, 2)
+        cv2.line(imgOriginalScene, tuple(self.p2fRectPoints[2]), tuple(self.p2fRectPoints[3]), SCALAR_RED, 2)
+        cv2.line(imgOriginalScene, tuple(self.p2fRectPoints[3]), tuple(self.p2fRectPoints[0]), SCALAR_RED, 2)
+        cv2.rectangle(imgOriginalScene, (self.windowX1, self.windowY1), (self.windowX2, self.windowY2), SCALAR_GREEN, 2)
+        cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
+    
+    def boundCheck(self, flag, x, y):
+        if flag == -1:
+            self.hoverCount = self.hoverCount - 1
+            if self.hoverCount <= 0:
+                self.dataQueue.put('8')
+                self.hoverCount = 0
+            return
 
+        self.hoverCount = 3
+        '''# move1
+        if x < self.windowX1:
+            self.dataQueue.put('3') # left
+        elif x > self.windowX2:
+            self.dataQueue.put('5') # rignt
+        # else:
+        #     self.dataQueue.put('8')
+
+        if y < self.windowY1:
+            self.dataQueue.put('6') # up
+        elif y > self.windowY2:
+            self.dataQueue.put('7') # down
+        # else:
+        #     self.dataQueue.put('8')
+        '''
+
+        #move2
+
+        # else:
+        #     self.dataQueue.put('8')
+        
+        x1, y1 = self.p2fRectPoints[0] # left top
+        x2, y2 = self.p2fRectPoints[2] # right bottom
+        a = abs(x1 - x2) # x length
+        b = abs(y1 - y2) # y length
+        r = b / a # ratio
+
+        s = a * b # box size
+
+        if s < self.baseS:
+            self.dataQueue.put('1') # forward
+        elif s > self.baseS:
+            self.dataQueue.put('7') # backward
+
+        if not (r < self.baseR * 0.9 or r > self.baseR * 1.1):
+            return
+
+        if  s > self.baseS * 0.9 and s < self.baseS * 1.1:
+            self.dataQueue.put('8')
+            return
+        
+        
+        if x < self.windowX1:
+            self.dataQueue.put('0') # left spin
+        elif x > self.windowX2:
+            self.dataQueue.put('2') # rignt spin
+        # else:
+        #     self.dataQueue.put('8')
+
+    # end function
 
     def tossFrame(self):
         if not self.frameFlagQueue.empty():
             self.frameFlagQueue.get()
+            #self.cout("videoF")
             try:
-                #img = Image.fromarray(self.frame)
+                img = Image.fromarray(self.frame)
                 with BytesIO() as f:
                     img.save(f, format='JPEG')
                     self.frameQueue.put(f.getvalue())
@@ -193,37 +263,3 @@ class VideoAR():
             print string
         finally:
             self.lock.release()
-
-    def drawRedRectangleAroundPlate(self, imgOriginalScene, licPlate):
-        p2fRectPoints = cv2.boxPoints(licPlate.rrLocationOfPlateInScene)            # get 4 vertices of rotated rect
-        cv2.line(imgOriginalScene, tuple(p2fRectPoints[0]), tuple(p2fRectPoints[1]), SCALAR_RED, 2)         # draw 4 red lines
-        cv2.line(imgOriginalScene, tuple(p2fRectPoints[1]), tuple(p2fRectPoints[2]), SCALAR_RED, 2)
-        cv2.line(imgOriginalScene, tuple(p2fRectPoints[2]), tuple(p2fRectPoints[3]), SCALAR_RED, 2)
-        cv2.line(imgOriginalScene, tuple(p2fRectPoints[3]), tuple(p2fRectPoints[0]), SCALAR_RED, 2)
-        cv2.rectangle(imgOriginalScene, (self.windowX1, self.windowY1), (self.windowX2, self.windowY2), SCALAR_GREEN, 2)
-        cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
-    
-    def boundCheck(self, flag, x, y):
-        if flag == -1:
-            self.hoverCount = self.hoverCount - 1
-            if self.hoverCount <= 0:
-                self.dataQueue.put('8')
-                self.hoverCount = 0
-            return
-
-        self.hoverCount = 3
-        if x < self.windowX1:
-            self.dataQueue.put('3')
-        elif x > self.windowX2:
-            self.dataQueue.put('5')
-        # else:
-        #     self.dataQueue.put('8')
-
-        if y < self.windowY1:
-            self.dataQueue.put('6')
-        elif y > self.windowY2:
-            self.dataQueue.put('7')
-        # else:
-        #     self.dataQueue.put('8')
-
-    # end function
