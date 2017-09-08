@@ -41,8 +41,8 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
-        self.baseS = 4500
-        self.baseR = 7
+        self.baseS = 11000
+        self.baseR = 4
 
 
     def video(self):
@@ -216,10 +216,10 @@ class VideoAR():
         elif s > self.baseS:
             self.dataQueue.put('7') # backward
 
-        if not (r < self.baseR * 0.9 or r > self.baseR * 1.1):
+        if not (r < self.baseR * 0.76 or r > self.baseR * 1.25):
             return
 
-        if  s > self.baseS * 0.9 and s < self.baseS * 1.1:
+        if  s > self.baseS * 0.75 and s < self.baseS * 1.25:
             self.dataQueue.put('8')
             return
         
