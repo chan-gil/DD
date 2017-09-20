@@ -17,6 +17,8 @@ class GuiAR():
         self.videoQueue = videoQueue
         self.locationQueue = locationQueue
         self.dataQueue = dataQueue
+        # self.to_print = list()
+        # self.text = None
 
     def add_action(self,button_bind,function_call):
         "Add an action when a key is pressed"
@@ -56,6 +58,8 @@ class GuiAR():
         buttonLand.pack()
         buttonHover = Button(self.fen, text = 'Hover', command = self.hover)
         buttonHover.pack()
+        buttonGPS = Button(self.fen, text = 'GPS', command = self.gps)
+        buttonGPS.pack()
         buttonR = Button(self.fen, text = 'R', command = self.btnR)
         buttonR.pack()
 
@@ -86,7 +90,9 @@ class GuiAR():
     def land(self):
         self.dataQueue.put('101')
     def hover(self):
-        self.dataQueue.put('8') 
+        self.dataQueue.put('8')
+    def gps(self):
+        self.dataQueue.put('c')
 
     def close(self):
         self.serverQueue.put('q')
