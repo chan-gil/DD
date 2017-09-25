@@ -1,7 +1,7 @@
 import socket
 import threading
 from multiprocessing import Queue, Lock
-import errno
+import errno, time
 
 class ServerAR(threading.Thread):
 
@@ -65,13 +65,11 @@ class ServerAR(threading.Thread):
                 break
 
         # server run
-            while True:
-                if not self.isConn:
-                    break
+            while self.isConn:
                 if self.cmdCheck():
                     break                
-
                 try :
+                    time.sleep(1)
                     data = self.conn.recv(1024) #recieve message
                     msg = data.split()
                     self.cout(msg)
@@ -79,7 +77,6 @@ class ServerAR(threading.Thread):
                         if msg[2 * i] == 'msg':
                             self.dataQueue.put(msg[2 * i + 1])
                             if msg[2 * i + 1] == '200':
-                                #print "quit"
                                 raise Exception
                 except socket.error, e:
                     if e.errno == errno.ECONNRESET:
@@ -124,6 +121,7 @@ class ServerAR(threading.Thread):
             self.cmd = self.cmdQueue.get()
             if self.cmd == 'q':
                 self.cout("recv ended")
+                self.isConn = False;
                 return True
             if self.isConn and self.cmd == 'r':
                 '''

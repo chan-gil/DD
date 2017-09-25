@@ -113,11 +113,12 @@ def location(locationQueue, lock):
 
 if __name__ == '__main__':
     global drone
-    try :
+    drone = None
+    '''try :
         drone = ARDroneLib.Drone("192.168.1.2")
     except IOError:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
-        sys.exit()
+        sys.exit()'''
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
@@ -137,7 +138,7 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
     video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
     process_one = Process(target=gui.start, args=())
@@ -149,9 +150,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    #server.start()
+    server.start()
 
-    #server.join()
+    server.join()
     process_one.join()
     #process_three.join()
     process_two.join()
