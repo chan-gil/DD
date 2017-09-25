@@ -16,8 +16,21 @@ import ARDroneLib, ARDroneGUI
 ###############
 ### GLOBALS ###
 ###############
-last_coord=(None,None)
-all_coords = dict()
+
+pos = GPS_Coord()
+
+###############
+### CLASSES ###
+###############
+
+class GPS_Coord():
+    "Very little class to store GPS Coord"
+    def setPoint(self, longi=None, lati=None):
+        self.lo = longi
+        self.la = lati
+        print "> Saved navpoint:",(self.lo,self.la)
+    def getPoint(self): return (self.lo, self.la)
+
 
 ##################
 #   FUNCTIONS    #
@@ -58,20 +71,15 @@ def consumer(dataQueue, lock, conQueue, drone):
                 drone.up(speed * 2)
             elif dataIn == '7':
                 drone.down(speed * 2)
+            elif dataIn == 'g':
+                drone.goto("gps", pos.getPoint()[0], pos.getPoint()[1], 2, continuous=True)
+            # video Queue
             elif dataIn == '200':
                 videoQueue.put('q')
             elif dataIn == '201':
                 videoQueue.put('r')
             elif dataIn == '202':
                  videoQueue.put('p')
-            elif dataIn == '250':
-                videoQueue.put('o')
-            elif dataIn == '251':
-                videoQueue.put('b')
-            elif dataIn == '252':
-                videoQueue.put('m')
-            elif dataIn == '253':
-                videoQueue.put('g')
     drone.land()
     drone.stop()
     print "consumer process terminated"
@@ -145,6 +153,9 @@ if __name__ == '__main__':
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
+
+    drone.set_callback(video.callback)
+    drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
 
     process_one.start()
     process_two.start()
