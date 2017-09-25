@@ -312,6 +312,7 @@ class _NavdataThread(threading.Thread):
         # Initialize the drone to send the data
         self.sock.sendto("\x01\x00\x00\x00", (self.ip,self.port))
         time.sleep(0.05)
+        # print 'flag'
         while self.running:
             try:
                 rep, client = self.sock.recvfrom(self.size)
@@ -325,6 +326,7 @@ class _NavdataThread(threading.Thread):
                 self.callback(rep)
         self.com._activate_navdata(activate=False) # Tell com thread that we are out
         self.sock.close()
+        print 'flag'
     def reconnect(self):
         "Try to send another packet to reactivate navdata"
         self.sock.sendto("\x01\x00\x00\x00", (self.ip,self.port))
@@ -356,8 +358,6 @@ def bin2dec(bin):
 def float2dec(my_float):
     "Convert a python float to an int"
     return int(struct.unpack("=l",struct.pack("f",float(my_float)))[0])
-    
-
     
     
 
