@@ -5,7 +5,6 @@ from multiprocessing import Process, Queue, Lock, Event
 #cd Desktop\gradu\server
 #python testserver.py
 # path : C:\Users\huiba\Downloads\Drone\test\DDL\server
-# 480 x 640
 from datetime import datetime
 import sys, time
 import threading
@@ -109,6 +108,7 @@ def location(locationQueue, lock):
             
     cam.release()
     cv2.destroyAllWindows()
+        
     
 
 if __name__ == '__main__':
@@ -127,7 +127,6 @@ if __name__ == '__main__':
     locationQueue = Queue()
     frameQueue = Queue()
     frameFlagQueue = Queue()
-
     print '''
     outMode = 'q'   // quit
     outMode = 'r'   // recording start/stop
@@ -146,8 +145,6 @@ if __name__ == '__main__':
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
-    
-    drone.set_callback(video.callback)
 
     process_one.start()
     process_two.start()
@@ -160,7 +157,6 @@ if __name__ == '__main__':
     #process_three.join()
     process_two.join()
     thread_two.join()
-
 
     print "Test done"
 
