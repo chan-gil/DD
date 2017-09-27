@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/d">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/streamView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="100dp"
+            android:alpha="1" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/streamSwitchBtn"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="control"/>
+            <Button
+                android:id="@+id/streamCancelBtn"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:text="cancel"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.droneofficer.Buttons
+                android:id="@+id/spinLeftBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="left spin"/>
+            <com.example.droneofficer.Buttons
+                android:id="@+id/forwardBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"
+                android:text="forward"/>
+            <com.example.droneofficer.Buttons
+                android:id="@+id/spinRightBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="right spin"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.droneofficer.Buttons
+                android:id="@+id/leftBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"
+                android:text="left"/>
+            <com.example.droneofficer.Buttons
+                android:id="@+id/backwardBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="backward"/>
+            <com.example.droneofficer.Buttons
+                android:id="@+id/rightBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"
+                android:text="right"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <com.example.droneofficer.Buttons
+                android:id="@+id/upBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="up"/>
+            <com.example.droneofficer.Buttons
+                android:id="@+id/downBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="#bbbbbb"
+                android:text="down"/>
+            <Button
+                android:id="@+id/takeoffBtn"
+                android:layout_width="0px"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Take-off" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="0.6"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+
+            <ImageButton
+                android:id="@+id/reportBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/report"
+                android:background="@drawable/a"
+                android:scaleType="centerInside" />
+
+            <ImageButton
+                android:id="@+id/profileBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/b"
+                android:src="@drawable/drone"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <ImageButton
+                android:id="@+id/streamBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/c"
+                android:src="@drawable/streaming"
+                android:scaleType="centerInside"/>
+            <ImageButton
+                android:id="@+id/controlBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/d"
+                android:src="@drawable/control"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <ImageButton
+                android:id="@+id/connectBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/e"
+                android:src="@drawable/connect"
+                android:scaleType="centerInside"/>
+            <ImageButton
+                android:id="@+id/settingBtn"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/f"
+                android:src="@drawable/setting"
+                android:scaleType="centerInside"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</RelativeLayout>
