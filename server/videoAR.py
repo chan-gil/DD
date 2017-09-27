@@ -44,6 +44,8 @@ class VideoAR():
         self.baseS = 9000
         self.baseR = 4
         self.navData_Bat = 0
+        self.navData_Latitude = 0
+        self.navData_Longitude = 0
         # self.text = None
 
 
@@ -110,7 +112,11 @@ class VideoAR():
                 # 1 : (scale) 
                 # (0, 255, 0) :  (r,g,b)
                 bat = 'Battery:' + str(self.navData_Bat)
-                cv2.putText(self.frame, bat, (550, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                gpsLa = 'Latitude:' + str(self.navData_Latitude)
+                gpsLo = 'Longitude:' + str(self.navData_Longitude)
+                cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
                 cv2.imshow('Video', self.frame)
                 #self.tossFrame()
                 cv2.waitKey(1)
@@ -280,40 +286,14 @@ class VideoAR():
 
     def callback(self, navdata):
         "Callback function that can be given to Navdata filter"
-        if len(navdata.keys()) < 1: return False # We don't have any navdata
-        else: self.navData_Bat= navdata['navdata_demo']['battery_percentage']
-        # for p in self.to_print:
-        #     # Get data
-        #     data = navdata
-        #     # Get the tree
-        #     for key in p[1]:
-        #         if data != None:
-        #             if str(key) in data.keys():
-        #                 data = data[str(key)]
-        #                 print data
-        #                 print 'flag'
-        #             else:
-        #                 data = "Error in given tree (" + str(p[1]) + "): " + str(key)
-            #     else:
-            #         data = "No data"
-            #         break
-            # # Format
-            # new_text = new_text + str(p[0]) + ": " + str(data) + "\n"
-        # And done
-        # self.change_text(new_text)
-
-    # def change_text(self, new_text):
-    #     "Change the text inside the box"
-    #     try:    new_text=str(new_text) # Check if we have no error changing text
-    #     except: return False
-    #     if self.text is None:   return False # Window not yet initiated
-    #     self.text.set(new_text)
-    #     return True
-
-    # def add_printable_data(self, description, tree):
-    #     "Add something in navdata to print, tree is a tulpe"
-    #     # Check if the arguments are good
-    #     if type(tree) != type((0,0)):   raise TypeError("Tree must be a tulpe")
-    #     self.to_print.append((str(description),tree))
-    #     return True
-
+        if len(navdata.keys()) < 1: 
+            print 'error flag'
+            return False # We don't have any navdata
+        else: 
+            try:
+                self.navData_Bat = navdata['navdata_demo']['battery_percentage']
+                self.navData_Longitude = navdata['gps_info']['longitude']
+                self.navData_Latitude = navdata['gps_info']['latitude']
+                self.navData_Elevation = navdata['gps_info']['elevation']
+            except:
+                pass
