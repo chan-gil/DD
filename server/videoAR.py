@@ -25,7 +25,7 @@ showSteps = True
 
 
 class VideoAR():
-    def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue, dataQueue):
+    def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue):
         self.lock = lock
         self.videoQueue = videoQueue
         self.frameQueue = frameQueue
@@ -46,6 +46,10 @@ class VideoAR():
         self.navData_Bat = 0
         self.navData_Latitude = 0
         self.navData_Longitude = 0
+        self.navData_Theta = 0
+        self.navData_Phi = 0
+        self.navData_Psi = 0
+        self.navDataQueue = navDataQueue
         # self.text = None
 
 
@@ -111,12 +115,19 @@ class VideoAR():
                 # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX : font
                 # 1 : (scale) 
                 # (0, 255, 0) :  (r,g,b)
+                self.getNav()
                 bat = 'Battery:' + str(self.navData_Bat)
                 gpsLa = 'Latitude:' + str(self.navData_Latitude)
                 gpsLo = 'Longitude:' + str(self.navData_Longitude)
+                theta = 'Theta:' + str(self.navData_Theta)
+                phi = 'Phi:' + str(self.navData_Phi)
+                psi = 'Psi:' + str(self.navData_Psi)
                 cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
                 cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
                 cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                cv2.putText(self.frame, theta, (0, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                cv2.putText(self.frame, phi, (0, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                cv2.putText(self.frame, psi, (0, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
                 cv2.imshow('Video', self.frame)
                 #self.tossFrame()
                 cv2.waitKey(1)
@@ -284,16 +295,15 @@ class VideoAR():
         finally:
             self.lock.release()
 
-    def callback(self, navdata):
-        "Callback function that can be given to Navdata filter"
-        if len(navdata.keys()) < 1: 
-            print 'error flag'
-            return False # We don't have any navdata
-        else: 
+    def getNav(self):
+        if not self.navDataQueue.empty():
+            navdata = self.navDataQueue.get()
             try:
                 self.navData_Bat = navdata['navdata_demo']['battery_percentage']
                 self.navData_Longitude = navdata['gps_info']['longitude']
                 self.navData_Latitude = navdata['gps_info']['latitude']
-                self.navData_Elevation = navdata['gps_info']['elevation']
+                self.navData_Theta = navdata['navdata_demo']['theta']
+                self.navData_Psi = navdata['navdata_demo']['psi']
+                self.navData_Phi = navdata['navdata_demo']['phi']
             except:
-                pass
+                print 'getNav exception'

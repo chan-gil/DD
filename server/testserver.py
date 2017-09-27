@@ -135,6 +135,7 @@ if __name__ == '__main__':
     locationQueue = Queue()
     frameQueue = Queue()
     frameFlagQueue = Queue()
+    navDataQueue = Queue()
     print '''
     outMode = 'q'   // quit
     outMode = 'r'   // recording start/stop
@@ -148,13 +149,13 @@ if __name__ == '__main__':
     
     #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
-    video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue)
+    video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue)
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
 
-    drone.set_callback(video.callback)
+    drone.set_callback(navDataQueue)
     drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
 
     process_one.start()

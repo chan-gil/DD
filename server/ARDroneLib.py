@@ -52,17 +52,18 @@ class Drone():
         self.comThread.stop()
         if self.navThread != None:
             self.navThread.stop()
-    def set_callback(self, callback):
+    def set_callback(self, navDataQueue):
         "Set the callback function"
         # Check if the argument is a function
-        if not hasattr(callback, '__call__'):   raise TypeError("Need a function")
+        # if not hasattr(callback, '__call__'):   raise TypeError("Need a function")
         if self.navThread == None:
             # Initialize the navdata thread and navdata
-            self.navThread = _NavdataThread(self.comThread, callback)
+            self.navThread = _NavdataThread(self.comThread, navDataQueue)
             self.navThread.start()
             self.set_config(activate_navdata=True)
         else:
-            self.navThread.change_callback(callback)
+            pass
+            # self.navThread.change_callback(callback)
         return True
     # Configuration of the drone
     def set_config(self,**args):
@@ -284,21 +285,23 @@ class _CommandThread(threading.Thread):
 
 class _NavdataThread(threading.Thread):
     "Manage the incoming data"
-    def __init__(self, communication, callback):
+    def __init__(self, communication, navDataQueue):
         "Create the navdata handler thread"
         self.running = True
         self.port = DATA_PORT
         self.size = MAX_PACKET_SIZE
         self.com = communication
         self.ip = self.com.ip
-        self.callback = callback
+        # self.callback = callback
         self.f = ARDroneNavdata.navdata_decode
         self.last_drone_status = None
         # Initialize the server
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('0.0.0.0',self.port))
         self.sock.setblocking(0)
+        self.navDataQueue = navDataQueue
         threading.Thread.__init__(self)
+        
     def change_callback(self, new_callback):
         "Change the callback function"
         # Check if the argument is a function
@@ -312,7 +315,6 @@ class _NavdataThread(threading.Thread):
         # Initialize the drone to send the data
         self.sock.sendto("\x01\x00\x00\x00", (self.ip,self.port))
         time.sleep(0.05)
-        # print 'flag'
         while self.running:
             try:
                 rep, client = self.sock.recvfrom(self.size)
@@ -323,10 +325,11 @@ class _NavdataThread(threading.Thread):
                 self.last_navdata = rep
                 if rep["drone_state"]['command_ack'] == 1:
                     self.com._ack_command()
-                self.callback(rep)
+                # self.callback(rep)
+                if self.navDataQueue.empty():
+                    self.navDataQueue.put(rep)
         self.com._activate_navdata(activate=False) # Tell com thread that we are out
         self.sock.close()
-        print 'flag'
     def reconnect(self):
         "Try to send another packet to reactivate navdata"
         self.sock.sendto("\x01\x00\x00\x00", (self.ip,self.port))
@@ -358,6 +361,8 @@ def bin2dec(bin):
 def float2dec(my_float):
     "Convert a python float to an int"
     return int(struct.unpack("=l",struct.pack("f",float(my_float)))[0])
+    
+
     
     
 
