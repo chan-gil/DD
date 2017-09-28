@@ -62,6 +62,8 @@ class GuiAR():
         buttonGPS.pack()
         buttonR = Button(self.fen, text = 'R', command = self.btnR)
         buttonR.pack()
+        buttonReset = Button(self.fen, text = 'Reset', command = self.reset)
+        buttonReset.pack()
 
         #self.fen.mainloop()
         self.running = True
@@ -69,6 +71,8 @@ class GuiAR():
             self.fen.update()
             time.sleep(1.0/self.FPS) # Adjust FPS
 
+    def reset(self):
+        self.dataQueue.put('r')
     def btnR(self):
         self.serverQueue.put('r')
     def rec(self):

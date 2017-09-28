@@ -60,7 +60,7 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '4':
                 drone.backward(speed * 4)
             elif dataIn == '3':
-                drone.left(speed * 2)
+                drone.left(speed * 5)
             elif dataIn == '5':
                 drone.right(speed * 2)
             elif dataIn == '0':
@@ -68,11 +68,13 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '2':
                 drone.rotate_right(speed * 2)
             elif dataIn == '6':
-                drone.up(speed * 2)
+                drone.up(speed=1)
             elif dataIn == '7':
                 drone.down(speed * 2)
             elif dataIn == 'g':
                 drone.goto("gps", pos.getPoint()[0], pos.getPoint()[1], 2, continuous=True)
+            elif dataIn == 'r':
+                drone.reset()
             # video Queue
             elif dataIn == '200':
                 videoQueue.put('q')

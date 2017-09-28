@@ -41,14 +41,9 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
-        self.baseS = 9000
+        self.baseS = 6500
         self.baseR = 4
-        self.navData_Bat = 0
-        self.navData_Latitude = 0
-        self.navData_Longitude = 0
-        self.navData_Theta = 0
-        self.navData_Phi = 0
-        self.navData_Psi = 0
+        self.navdata = None
         self.navDataQueue = navDataQueue
         # self.text = None
 
@@ -116,18 +111,30 @@ class VideoAR():
                 # 1 : (scale) 
                 # (0, 255, 0) :  (r,g,b)
                 self.getNav()
-                bat = 'Battery:' + str(self.navData_Bat)
-                gpsLa = 'Latitude:' + str(self.navData_Latitude)
-                gpsLo = 'Longitude:' + str(self.navData_Longitude)
-                theta = 'Theta:' + str(self.navData_Theta)
-                phi = 'Phi:' + str(self.navData_Phi)
-                psi = 'Psi:' + str(self.navData_Psi)
-                cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
-                cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
-                cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
-                cv2.putText(self.frame, theta, (0, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
-                cv2.putText(self.frame, phi, (0, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
-                cv2.putText(self.frame, psi, (0, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+                try :
+                    bat = 'Battery:' + str(self.navdata['navdata_demo']['battery_percentage'])
+                    gpsLa = 'Latitude:' + str(self.navdata['gps_info']['longitude'])
+                    gpsLo = 'Longitude:' + str(self.navdata['gps_info']['latitude'])
+                    theta = 'Theta:' + str(self.navdata['navdata_demo']['theta'])
+                    phi = 'Phi:' + str(self.navdata['navdata_demo']['psi'])
+                    psi = 'Psi:' + str(self.navdata['navdata_demo']['phi'])
+                    vx = 'vx:' + str(self.navdata['navdata_demo']['vx'])
+                    vy = 'vy:' + str(self.navdata['navdata_demo']['vy'])
+                    vz = 'vz:' + str(self.navdata['navdata_demo']['vz'])
+                    alti = 'altitude:' + str(self.navdata['navdata_demo']['altitude'])
+                    cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, theta, (0, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, phi, (0, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, psi, (0, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, vx, (0, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, vy, (0, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, vz, (0, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    cv2.putText(self.frame, alti, (0, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                except Exception, e :
+                    self.cout(e)
+
                 cv2.imshow('Video', self.frame)
                 #self.tossFrame()
                 cv2.waitKey(1)
@@ -201,14 +208,19 @@ class VideoAR():
         cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
     
     def boundCheck(self, flag, x, y):
+        if self.navdata['navdata_demo']['altitude'] < 500:
+            
+            
         if flag == -1:
-            self.hoverCount = self.hoverCount - 1
-            if self.hoverCount <= 0:
-                self.dataQueue.put('8')
-                self.hoverCount = 0
+            self.dataQueue.put('8')
             return
+            # self.hoverCount = self.hoverCount - 1
+            # if self.hoverCount <= 0:
+            #     self.dataQueue.put('8')
+            #     self.hoverCount = 0
+            # return
 
-        self.hoverCount = 10
+        # self.hoverCount = 2
         '''# move1
         if x < self.windowX1:
             self.dataQueue.put('3') # left
@@ -229,6 +241,8 @@ class VideoAR():
 
         # else:
         #     self.dataQueue.put('8')
+
+
         
         x1, y1 = self.p2fRectPoints[0] # left top
         x2, y2 = self.p2fRectPoints[2] # right bottom
@@ -240,20 +254,28 @@ class VideoAR():
 
         if x < self.windowX1:
             self.dataQueue.put('0') # left spin
+            self.dataQueue.put('0') # left spin
+            self.dataQueue.put('0') # left spin
+            self.dataQueue.put('0') # left spin
+            self.dataQueue.put('0') # left spin
+            # return
         elif x > self.windowX2:
             self.dataQueue.put('2') # rignt spin
+            # return
         else:
             self.dataQueue.put('8')
+            # return
 
         if not (r < self.baseR * 0.76 or r > self.baseR * 1.25):
+            self.dataQueue.put('8')
             return
 
         if  s > self.baseS * 0.75 and s < self.baseS * 1.25:
             self.dataQueue.put('8')
             return
 
-        if s < self.baseS:
-            self.dataQueue.put('1') # forward
+        # if s < self.baseS:
+        #     self.dataQueue.put('1') # forward
         # elif s > self.baseS:
             #self.dataQueue.put('7') # backward
 
@@ -297,13 +319,4 @@ class VideoAR():
 
     def getNav(self):
         if not self.navDataQueue.empty():
-            navdata = self.navDataQueue.get()
-            try:
-                self.navData_Bat = navdata['navdata_demo']['battery_percentage']
-                self.navData_Longitude = navdata['gps_info']['longitude']
-                self.navData_Latitude = navdata['gps_info']['latitude']
-                self.navData_Theta = navdata['navdata_demo']['theta']
-                self.navData_Psi = navdata['navdata_demo']['psi']
-                self.navData_Phi = navdata['navdata_demo']['phi']
-            except:
-                print 'getNav exception'
+            self.navdata = self.navDataQueue.get()
