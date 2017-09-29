@@ -45,7 +45,9 @@ class VideoAR():
         self.baseR = 5.6
         self.navdata = None
         self.navDataQueue = navDataQueue
-        self.lastCoords = None
+        self.lastCoords = False
+        self.lastXY = [None] * 9
+        self.lastIndex = 0
         # self.text = None
 
 
@@ -197,7 +199,7 @@ class VideoAR():
                 targetY = listOfPossiblePlates[targetPlate].rrLocationOfPlateInScene[0][1]
                 # print "target x : " + str(targetX)
                 # print "target y : " + str(targetY)
-        self.boundCheck(targetPlate, targetX, targetY)
+        self.boundCheck2(targetPlate, targetX, targetY)
 
     def drawRedRectangleAroundPlate(self, imgOriginalScene, licPlate):
         self.p2fRectPoints = cv2.boxPoints(licPlate.rrLocationOfPlateInScene)            # get 4 vertices of rotated rect
@@ -211,10 +213,11 @@ class VideoAR():
     def boundCheck(self, flag, x, y):
         # if self.navdata['navdata_demo']['altitude'] < 600:
         #     self.dataQueue.put('6')
-            
+
         if flag == -1:
             self.dataQueue.put('8')
             return
+        
             # self.hoverCount = self.hoverCount - 1
             # if self.hoverCount <= 0:
             #     self.dataQueue.put('8')
@@ -285,11 +288,72 @@ class VideoAR():
 
     def boundCheck2(self, flag, x, y):
         if flag == -1:
-            if lastCoords = None:
+            if not lastCoords:
                 self.dataQueue.put('8')
                 return
             else:
+                count = 0
+                for i in range(9):
+                    if (320 - lastXY[i]) > 0:
+                        count = count + 1
+                        
+                if count > 5:
+                    lastCoords = True
+                
+                
+        else:
+            if not lastCoords:
+                count = 9
+                for i in range(9):
+                    if not lastXY[i] == None:
+                        count = count - 1
+                if count <= 0:
+                    self.dataQueue.put('5') # right
+                    self.dataQueue.put('2') # rignt spin
+                    return
+                else :
+                    self.dataQueue.put('3') # left
+                    self.dataQueue.put('0') # left spin
+                    self.dataQueue.put('0') # left spin
+                    self.dataQueue.put('0') # left spin
+                    self.dataQueue.put('0') # left spin
+                    self.dataQueue.put('0') # left spin
+                    return
+                
+            lastXY[lastIndex] = x
+            lastIndex = lastIndex + 1
+            if lastIndex == 9:
+                lastIndex = 0
 
+            x1, y1 = self.p2fRectPoints[0] # left top
+            x2, y2 = self.p2fRectPoints[2] # right bottom
+            a = abs(x1 - x2) # x length
+            b = abs(y1 - y2) # y length
+            r = a / b # ratio
+
+            s = a * b # box size
+            print "size : " + str(s) + "ratio : " + str(r)
+    
+            if x < self.windowX1:
+                self.dataQueue.put('3') # left
+                self.dataQueue.put('0') # left spin
+                self.dataQueue.put('0') # left spin
+                self.dataQueue.put('0') # left spin
+                self.dataQueue.put('0') # left spin
+                self.dataQueue.put('0') # left spin
+                # return
+            elif x > self.windowX2:            
+                self.dataQueue.put('5') # right
+                self.dataQueue.put('2') # rignt spin
+                # return
+            else:
+                self.dataQueue.put('8')
+                # return
+
+                
+            if s < self.baseS:
+                self.dataQueue.put('1') # forward
+    
     def avgCoord(self, lastCoords):
         
         
