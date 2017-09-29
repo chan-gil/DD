@@ -296,18 +296,8 @@ class VideoAR():
                 for i in range(9):
                     if (320 - lastXY[i]) > 0:
                         count = count + 1
-                        
+
                 if count > 5:
-                    lastCoords = True
-                
-                
-        else:
-            if not lastCoords:
-                count = 9
-                for i in range(9):
-                    if not lastXY[i] == None:
-                        count = count - 1
-                if count <= 0:
                     self.dataQueue.put('5') # right
                     self.dataQueue.put('2') # rignt spin
                     return
@@ -318,7 +308,16 @@ class VideoAR():
                     self.dataQueue.put('0') # left spin
                     self.dataQueue.put('0') # left spin
                     self.dataQueue.put('0') # left spin
-                    return
+                    return                
+                
+        else:
+            if not lastCoords:
+                count = 9
+                for i in range(9):
+                    if not lastXY[i] == None:
+                        count = count - 1
+                if count <= 0:
+                    lastCoords = True
                 
             lastXY[lastIndex] = x
             lastIndex = lastIndex + 1
