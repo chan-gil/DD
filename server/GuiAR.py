@@ -37,7 +37,19 @@ class GuiAR():
         self.cadre.pack()
         self.fen.protocol("WM_DELETE_WINDOW", self.stop) # Called when the window is closed
 
+
         self.add_action('q', self.close)
+
+        self.add_action('h', self.control_hover)
+        self.add_action('u', self.control_up)
+        self.add_action('j', self.control_down)
+        self.add_action('e', self.control_forward)
+        self.add_action('d', self.control_backward)
+        self.add_action('s', self.control_left)
+        self.add_action('f', self.control_right)
+        self.add_action('w', self.control_leftTurn)
+        self.add_action('r', self.control_rightTurn)
+
         buttonRec = Button(self.fen, text = 'Record', command = self.rec)
         buttonRec.pack()
         buttonPic = Button(self.fen, text = 'Take Picture', command = self.pic)
@@ -106,6 +118,25 @@ class GuiAR():
         self.locationQueue.put('q')
         self.stop()
         return True
+
+    def control_up(self):
+        self.dataQueue.put('6')
+    def control_down(self):
+        self.dataQueue.put('7')
+    def control_forward(self):
+        self.dataQueue.put('1')
+    def control_backward(self):
+        self.dataQueue.put('4')
+    def control_right(self):
+        self.dataQueue.put('5')
+    def control_left(self):
+        self.dataQueue.put('3')
+    def control_rightTurn(self):
+        self.dataQueue.put('2')
+    def control_leftTurn(self):
+        self.dataQueue.put('0')
+    def control_hover(self):
+        self.dataQueue.put('8')
             
     def stop(self):
         "Stop the window"

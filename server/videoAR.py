@@ -41,10 +41,11 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
-        self.baseS = 6500
-        self.baseR = 4
+        self.baseS = 5000
+        self.baseR = 5.6
         self.navdata = None
         self.navDataQueue = navDataQueue
+        self.lastCoords = None
         # self.text = None
 
 
@@ -208,8 +209,8 @@ class VideoAR():
         cv2.circle(imgOriginalScene, (int(licPlate.rrLocationOfPlateInScene[0][0]), int(licPlate.rrLocationOfPlateInScene[0][1])), 1, SCALAR_RED, 2)
     
     def boundCheck(self, flag, x, y):
-        if self.navdata['navdata_demo']['altitude'] < 500:
-            
+        # if self.navdata['navdata_demo']['altitude'] < 600:
+        #     self.dataQueue.put('6')
             
         if flag == -1:
             self.dataQueue.put('8')
@@ -248,38 +249,48 @@ class VideoAR():
         x2, y2 = self.p2fRectPoints[2] # right bottom
         a = abs(x1 - x2) # x length
         b = abs(y1 - y2) # y length
-        r = b / a # ratio
+        r = a / b # ratio
 
         s = a * b # box size
+        print "size : " + str(s) + "ratio : " + str(r)
 
         if x < self.windowX1:
+            self.dataQueue.put('3') # left
             self.dataQueue.put('0') # left spin
             self.dataQueue.put('0') # left spin
             self.dataQueue.put('0') # left spin
             self.dataQueue.put('0') # left spin
             self.dataQueue.put('0') # left spin
             # return
-        elif x > self.windowX2:
+        elif x > self.windowX2:            
+            self.dataQueue.put('5') # left
             self.dataQueue.put('2') # rignt spin
             # return
         else:
             self.dataQueue.put('8')
             # return
 
-        if not (r < self.baseR * 0.76 or r > self.baseR * 1.25):
-            self.dataQueue.put('8')
-            return
+        # if not (r < self.baseR * 0.76 or r > self.baseR * 1.25):
+        #    self.dataQueue.put('8')
+        #    return
 
-        if  s > self.baseS * 0.75 and s < self.baseS * 1.25:
-            self.dataQueue.put('8')
-            return
+        # if  s > self.baseS * 0.75 and s < self.baseS * 1.25:
+        #     self.dataQueue.put('8')
 
-        # if s < self.baseS:
-        #     self.dataQueue.put('1') # forward
+        if s < self.baseS:
+            self.dataQueue.put('1') # forward
         # elif s > self.baseS:
             #self.dataQueue.put('7') # backward
 
 
+    def boundCheck2(self, flag, x, y):
+        if flag == -1:
+            if lastCoords = None:
+                self.dataQueue.put('8')
+                return
+            else:
+
+    def avgCoord(self, lastCoords):
         
         
 

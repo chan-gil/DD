@@ -60,14 +60,17 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '4':
                 drone.backward(speed * 4)
             elif dataIn == '3':
-                drone.left(speed * 5)
+                drone.left(speed)
             elif dataIn == '5':
-                drone.right(speed * 2)
+                drone.right(speed)
             elif dataIn == '0':
                 drone.rotate_left(speed * 4)
             elif dataIn == '2':
                 drone.rotate_right(speed * 2)
             elif dataIn == '6':
+                drone.up(speed=1)
+                drone.up(speed=1)
+                drone.up(speed=1)
                 drone.up(speed=1)
             elif dataIn == '7':
                 drone.down(speed * 2)
