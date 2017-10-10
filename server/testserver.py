@@ -64,9 +64,9 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '5':
                 drone.right(speed)
             elif dataIn == '0':
-                drone.rotate_left(speed * 4)
+                drone.rotate_left(speed * 5)
             elif dataIn == '2':
-                drone.rotate_right(speed * 2)
+                drone.rotate_right(speed * 5)
             elif dataIn == '6':
                 drone.up(speed=1)
                 drone.up(speed=1)

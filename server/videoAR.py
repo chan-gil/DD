@@ -41,7 +41,7 @@ class VideoAR():
         self.windowY1 = 360 * 4 / 10
         self.windowY2 = 360 * 6 / 10
         self.hoverCount = 0
-        self.baseS = 5000
+        self.baseS = 4500
         self.baseR = 5.6
         self.navdata = None
         self.navDataQueue = navDataQueue
@@ -89,13 +89,13 @@ class VideoAR():
                     cv2.imwrite(self.initFileName(0), self.frame)
                     self.outMode = preOutMode                
                 # apply filter 
-                if self.outMode =='b' or self.outMode == 'm' or self.outMode == 'g':
-                    img_grey = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-                    ret, self.frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
-                    if self.outMode == 'm':
-                        self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,2)
-                    elif self.outMode == 'g':
-                        self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
+                # if self.outMode =='b' or self.outMode == 'm' or self.outMode == 'g':
+                #     img_grey = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                #     ret, self.frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
+                #     if self.outMode == 'm':
+                #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,2)
+                #     elif self.outMode == 'g':
+                #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
                 # tracking
                 elif self.outMode == 't':
                     # self.lock.acquire()
@@ -104,6 +104,10 @@ class VideoAR():
                     # finally:
                     #     self.lock.release()
                     self.licenseTracking()
+                elif self.outMode == 'o':
+                    self.lastXY = [None] * 9
+                    self.lastIndex = 0
+                    self.lastCoords = False
                 preOutMode = self.outMode
 
                 # ########## add ##################
@@ -287,18 +291,27 @@ class VideoAR():
 
 
     def boundCheck2(self, flag, x, y):
+        if self.navdata['navdata_demo']['altitude'] < 600:
+            self.dataQueue.put('6')
+
+        # print self.lastXY
+
         if flag == -1:
-            if not lastCoords:
+            if not self.lastCoords:
                 self.dataQueue.put('8')
                 return
             else:
                 count = 0
                 for i in range(9):
-                    if (320 - lastXY[i]) > 0:
+                    if (320 - self.lastXY[i]) > 0:
                         count = count + 1
 
-                if count > 5:
+                if count < 5:
                     self.dataQueue.put('5') # right
+                    self.dataQueue.put('2') # rignt spin
+                    self.dataQueue.put('2') # rignt spin
+                    self.dataQueue.put('2') # rignt spin
+                    self.dataQueue.put('2') # rignt spin
                     self.dataQueue.put('2') # rignt spin
                     return
                 else :
@@ -311,18 +324,18 @@ class VideoAR():
                     return                
                 
         else:
-            if not lastCoords:
+            if not self.lastCoords:
                 count = 9
                 for i in range(9):
-                    if not lastXY[i] == None:
+                    if not self.lastXY[i] == None:
                         count = count - 1
                 if count <= 0:
-                    lastCoords = True
+                    self.lastCoords = True
                 
-            lastXY[lastIndex] = x
-            lastIndex = lastIndex + 1
-            if lastIndex == 9:
-                lastIndex = 0
+            self.lastXY[self.lastIndex] = x
+            self.lastIndex = self.lastIndex + 1
+            if self.lastIndex == 9:
+                self.lastIndex = 0
 
             x1, y1 = self.p2fRectPoints[0] # left top
             x2, y2 = self.p2fRectPoints[2] # right bottom
@@ -331,7 +344,7 @@ class VideoAR():
             r = a / b # ratio
 
             s = a * b # box size
-            print "size : " + str(s) + "ratio : " + str(r)
+            # print "size : " + str(s) + "ratio : " + str(r)
     
             if x < self.windowX1:
                 self.dataQueue.put('3') # left
@@ -344,6 +357,10 @@ class VideoAR():
             elif x > self.windowX2:            
                 self.dataQueue.put('5') # right
                 self.dataQueue.put('2') # rignt spin
+                self.dataQueue.put('2') # rignt spin
+                self.dataQueue.put('2') # rignt spin
+                self.dataQueue.put('2') # rignt spin
+                self.dataQueue.put('2') # rignt spin
                 # return
             else:
                 self.dataQueue.put('8')
@@ -352,8 +369,12 @@ class VideoAR():
                 
             if s < self.baseS:
                 self.dataQueue.put('1') # forward
+            if s > self.baseS:
+                self.dataQueue.put('8')
+
+
     
-    def avgCoord(self, lastCoords):
+    # def avgCoord(self, lastCoords):
         
         
 
