@@ -75,7 +75,18 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '7':
                 drone.down(speed * 2)
             elif dataIn == 'g':
-                drone.goto("gps", pos.getPoint()[0], pos.getPoint()[1], 2, continuous=True)
+                count = 0
+                loc = [None] * 4
+                while not count == 4:
+                    if not dataQueue.empty():
+                        loc[count] = dataQueue.get()
+                        count = count + 1
+                if not loc[1] == "xx.xxxxxx":
+                    cout(lock, "go to")
+                    #drone.goto("gps", loc[0], loc[1], 2, continuous=True)
+                if loc[3] == "Tracking":
+                    cout(lock, "tracking")
+                    videoQueue.put('t')
             elif dataIn == 'r':
                 drone.reset()
             # video Queue
@@ -87,7 +98,7 @@ def consumer(dataQueue, lock, conQueue, drone):
                  videoQueue.put('p')
     drone.land()
     drone.stop()
-    print "consumer process terminated"
+    cout(lock, "consumer process terminated")
 
 def location(locationQueue, lock):
 
@@ -152,7 +163,7 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    #server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
     video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue)
     process_one = Process(target=gui.start, args=())
@@ -167,9 +178,9 @@ if __name__ == '__main__':
     process_two.start()
     #process_three.start()
     thread_two.start()
-    #server.start()
+    server.start()
 
-    #server.join()
+    server.join()
     process_one.join()
     #process_three.join()
     process_two.join()

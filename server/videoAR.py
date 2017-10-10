@@ -5,7 +5,7 @@ import os
 
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
-#from PIL import Image
+from PIL import Image
 from io import BytesIO
 
 
@@ -143,7 +143,7 @@ class VideoAR():
                     self.cout(e)
 
                 cv2.imshow('Video', self.frame)
-                #self.tossFrame()
+                self.tossFrame()
                 cv2.waitKey(1)
             else:
                 # error reading frame
@@ -386,7 +386,7 @@ class VideoAR():
             self.frameFlagQueue.get()
             #self.cout("videoF")
             try:
-                #img = Image.fromarray(self.frame)
+                img = Image.fromarray(self.frame)
                 with BytesIO() as f:
                     img.save(f, format='JPEG')
                     self.frameQueue.put(f.getvalue())

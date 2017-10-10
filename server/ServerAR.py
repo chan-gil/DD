@@ -71,10 +71,25 @@ class ServerAR(threading.Thread):
                 try :
                     time.sleep(1)
                     data = self.conn.recv(1024) #recieve message
-                    msg = data.split()
+                    msg = data.split('#')
                     self.cout(msg)
                     for i in range(len(msg) / 2):
                         if msg[2 * i] == 'msg':
+                            if msg[2 * i + 1] == "Move" or msg[2 * i + 1] == "Tracking":
+                                    self.dataQueue.put('g')
+                                    loc = msg[2 * i + 2].split('\n')
+                                    self.cout("1")
+                                    loc2 = loc[0].split('&')
+                                    self.cout("2")
+                                    self.dataQueue.put(loc2[0].split()[-1])
+                                    self.dataQueue.put(loc2[1])
+                                    self.cout("3")
+                                    loc2 = loc[1].split()
+                                    self.cout("4")
+                                    self.dataQueue.put(loc2[-1])
+                                    self.dataQueue.put(msg[2 * i + 1])
+                                    self.cout("5")
+                                    break
                             self.dataQueue.put(msg[2 * i + 1])
                             if msg[2 * i + 1] == '200':
                                 raise Exception
