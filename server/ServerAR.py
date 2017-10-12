@@ -105,7 +105,6 @@ class ServerAR(threading.Thread):
                     self.isConn = False
                     #drone.stop()
                     break
-                if 
                 self.frame()
 
     def frame(self):

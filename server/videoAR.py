@@ -5,7 +5,7 @@ import os
 
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
-#from PIL import Image
+from PIL import Image
 from io import BytesIO
 
 
@@ -71,16 +71,16 @@ class VideoAR():
 
             ##### determine map or streaming ############
             if self.outMode == 'm':
-                isMap = not isMap
-            if isMap:
+                self.isMap = not self.isMap
+            if self.isMap:
                 if self.outMode == 'q': 
                    break
                 self.frame = cv2.imread('map.png', 0)
                 cv2.imshow('Video', self.frame)
                 cv2.waitKey(1000)
                 self.tossFrame()
-
-            elif:  # get current frame of video
+            
+            else :  # get current frame of video
                 self.running, self.frame = cam.read()
                 #self.cout(str(self.frame.shape))
                 if self.running:
@@ -160,11 +160,12 @@ class VideoAR():
                         self.cout(e)
 
                     cv2.imshow('Video', self.frame)
-                    #self.tossFrame()
+                    self.tossFrame()
                     cv2.waitKey(1)
                 else:
                     # error reading frame
-                    self.cout('error reading video feed')
+                    # self.cout('error reading video feed')
+                    pass
 
 
         cam.release()    
@@ -405,7 +406,7 @@ class VideoAR():
             self.frameFlagQueue.get()
             #self.cout("videoF")
             try:
-                #img = Image.fromarray(self.frame)
+                img = Image.fromarray(self.frame)
                 with BytesIO() as f:
                     img.save(f, format='JPEG')
                     self.frameQueue.put(f.getvalue())

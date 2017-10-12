@@ -118,11 +118,13 @@ def location(locationQueue):
 if __name__ == '__main__':
     global drone
     drone = None
+    '''
     try :
         drone = ARDroneLib.Drone("192.168.1.2")
     except IOError:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
         sys.exit()
+        '''
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
@@ -156,8 +158,8 @@ if __name__ == '__main__':
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
     process_four = Process(target=mapGPS.mapping, args = ())
 
-    drone.set_callback(navDataQueue)
-    drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
+    #drone.set_callback(navDataQueue)
+    #drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
 
     process_one.start()
     process_two.start()

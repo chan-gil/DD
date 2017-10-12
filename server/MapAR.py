@@ -33,7 +33,7 @@ class MapAR():
 
 	def mapping(self):
 		while(True):
-			if not locationQueue.empty():
+			if not self.locationQueue.empty():
 				gpsCoord[0], gpsCoord[1] = self.locationQueue.get()
 				if gpsCoord[0] == 'q':
 					break
