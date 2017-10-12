@@ -9,7 +9,7 @@ from datetime import datetime
 import sys, time
 import threading
 #import cv2
-import ServerAR, GuiAR, videoAR
+import ServerAR, GuiAR, videoAR, MapAR
 import ARDroneLib, ARDroneGUI
 #from ARDroneLog import Log
 
@@ -95,44 +95,24 @@ def consumer(dataQueue, lock, conQueue, drone):
             elif dataIn == '201':
                 videoQueue.put('r')
             elif dataIn == '202':
-                 videoQueue.put('p')
+                videoQueue.put('p')
+            elif dataIn == '400':
+                videoQueue.put('m')
     drone.land()
     drone.stop()
     cout(lock, "consumer process terminated")
+   
+def location(locationQueue):
+    startX = 37.497492
+    startY = 126.955535
+    dx = -0.000002
+    dy = 0.000101
+    for i in range(10):
+        locationQueue.put((startX, startY))
+        startX = startX + dx
+        startY = startY + dy
+    locationQueue.put(('q','q'))
 
-def location(locationQueue, lock):
-
-    template = cv2.imread('drone.PNG')
-    templateGray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-    cam = cv2.VideoCapture(0)
-    running = True
-    while running:
-        # get current frame of video
-        if not locationQueue.empty():
-            break
-        
-        running, frame = cam.read()
-        if running:
-            # Convert to grayscale
-            imageGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
- 
-            # Find template
-            result = cv2.matchTemplate(imageGray,templateGray, cv2.TM_CCOEFF)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-            top_left = max_loc
-            h,w = templateGray.shape
-            bottom_right = (top_left[0] + w, top_left[1] + h)
-            cv2.rectangle(frame,top_left, bottom_right,(0,0,255),4)
-
-            cv2.imshow('frame', frame)
-            cv2.waitKey(1)
-        else:
-            # error reading frame
-            cout(lock, 'error reading video feed')
-            
-    cam.release()
-    cv2.destroyAllWindows()
-        
     
 
 if __name__ == '__main__':
@@ -152,6 +132,8 @@ if __name__ == '__main__':
     frameQueue = Queue()
     frameFlagQueue = Queue()
     navDataQueue = Queue()
+    mapQueue = Queue()
+
     print '''
     outMode = 'q'   // quit
     outMode = 'r'   // recording start/stop
@@ -163,13 +145,16 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock, mapQueue)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
     video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue)
+    mapGPS = MapAR.MapAR(locationQueue, mapQueue)
+
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
     #process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
+    process_four = Process(target=mapGPS.mapping, args = ())
 
     drone.set_callback(navDataQueue)
     drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
@@ -179,12 +164,14 @@ if __name__ == '__main__':
     #process_three.start()
     thread_two.start()
     server.start()
+    process_four.start()
 
     server.join()
     process_one.join()
     #process_three.join()
     process_two.join()
     thread_two.join()
+    process_four.join()
 
     print "Test done"
 

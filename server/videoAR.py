@@ -5,7 +5,7 @@ import os
 
 import ARDroneLib, ARDroneGUI
 from ARDroneLog import Log
-from PIL import Image
+#from PIL import Image
 from io import BytesIO
 
 
@@ -48,11 +48,15 @@ class VideoAR():
         self.lastCoords = False
         self.lastXY = [None] * 9
         self.lastIndex = 0
+        self.isMap = False
         # self.text = None
 
 
     def video(self):
-        cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
+        try:
+            cam = cv2.VideoCapture('tcp://192.168.1.2:5555')
+        except:
+            pass
         self.lock.acquire()
         try:
             blnKNNTrainingSuccessful = DetectChars.loadKNNDataAndTrainKNN()         # attempt KNN training
@@ -60,94 +64,109 @@ class VideoAR():
                 print "\nerror: KNN traning was not successful\n"               # show error message
         finally:
             self.lock.release()
-        while self.running:
+        while True:
             if not self.videoQueue.empty():
                 self.outMode = self.videoQueue.get()
                 self.cout("data = " + self.outMode)
-            # get current frame of video
-            self.running, self.frame = cam.read()
-            #self.cout(str(self.frame.shape))
-            if self.running:
-                ######## recording ########
-                if self.rec:
-                    out.write(self.frame)
-                # quit
+
+            ##### determine map or streaming ############
+            if self.outMode == 'm':
+                isMap = not isMap
+            if isMap:
                 if self.outMode == 'q': 
-                    break
-                # change recording flag
-                elif self.outMode == 'r':
-                    self.rec = not self.rec
-                    if self.rec:
-                        self.cout("start recording")
-                        out = cv2.VideoWriter(self.initFileName(1), self.fourcc, 25.0, (640,360))
-                    else:
-                        self.cout("stop recording")
-                        out.release()
-                    self.outMode = preOutMode
-                # take picture
-                elif self.outMode == 'p':
-                    cv2.imwrite(self.initFileName(0), self.frame)
-                    self.outMode = preOutMode                
-                # apply filter 
-                # if self.outMode =='b' or self.outMode == 'm' or self.outMode == 'g':
-                #     img_grey = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-                #     ret, self.frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
-                #     if self.outMode == 'm':
-                #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,2)
-                #     elif self.outMode == 'g':
-                #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
-                # tracking
-                elif self.outMode == 't':
-                    # self.lock.acquire()
-                    # try:
-                    #     #self.licenseTracking()
-                    # finally:
-                    #     self.lock.release()
-                    self.licenseTracking()
-                elif self.outMode == 'o':
-                    self.lastXY = [None] * 9
-                    self.lastIndex = 0
-                    self.lastCoords = False
-                preOutMode = self.outMode
-
-                # ########## add ##################
-                # add text in frame
-                # frame : image
-                # (0, 100) : coorinates
-                # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX : font
-                # 1 : (scale) 
-                # (0, 255, 0) :  (r,g,b)
-                self.getNav()
-                try :
-                    bat = 'Battery:' + str(self.navdata['navdata_demo']['battery_percentage'])
-                    gpsLa = 'Latitude:' + str(self.navdata['gps_info']['longitude'])
-                    gpsLo = 'Longitude:' + str(self.navdata['gps_info']['latitude'])
-                    theta = 'Theta:' + str(self.navdata['navdata_demo']['theta'])
-                    phi = 'Phi:' + str(self.navdata['navdata_demo']['psi'])
-                    psi = 'Psi:' + str(self.navdata['navdata_demo']['phi'])
-                    vx = 'vx:' + str(self.navdata['navdata_demo']['vx'])
-                    vy = 'vy:' + str(self.navdata['navdata_demo']['vy'])
-                    vz = 'vz:' + str(self.navdata['navdata_demo']['vz'])
-                    alti = 'altitude:' + str(self.navdata['navdata_demo']['altitude'])
-                    cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, theta, (0, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, phi, (0, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, psi, (0, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, vx, (0, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, vy, (0, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, vz, (0, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                    cv2.putText(self.frame, alti, (0, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
-                except Exception, e :
-                    self.cout(e)
-
+                   break
+                self.frame = cv2.imread('map.png', 0)
                 cv2.imshow('Video', self.frame)
+                cv2.waitKey(1000)
                 self.tossFrame()
-                cv2.waitKey(1)
-            else:
-                # error reading frame
-                self.cout('error reading video feed')
+
+            elif:  # get current frame of video
+                self.running, self.frame = cam.read()
+                #self.cout(str(self.frame.shape))
+                if self.running:
+                    ######## recording ########
+                    if self.rec:
+                        out.write(self.frame)
+                    # quit
+                    if self.outMode == 'q': 
+                        break
+                    # change recording flag
+                    elif self.outMode == 'r':
+                        self.rec = not self.rec
+                        if self.rec:
+                            self.cout("start recording")
+                            out = cv2.VideoWriter(self.initFileName(1), self.fourcc, 25.0, (640,360))
+                        else:
+                            self.cout("stop recording")
+                            out.release()
+                        self.outMode = preOutMode
+                    # take picture
+                    elif self.outMode == 'p':
+                        cv2.imwrite(self.initFileName(0), self.frame)
+                        self.outMode = preOutMode                
+                    # apply filter 
+                    # if self.outMode =='b' or self.outMode == 'm' or self.outMode == 'g':
+                    #     img_grey = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                    #     ret, self.frame = cv2.threshold(img_grey,127,255,cv2.THRESH_BINARY)
+                    #     if self.outMode == 'm':
+                    #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,15,2)
+                    #     elif self.outMode == 'g':
+                    #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
+                    # tracking
+                    elif self.outMode == 't':
+                        # self.lock.acquire()
+                        # try:
+                        #     #self.licenseTracking()
+                        # finally:
+                        #     self.lock.release()
+                        self.licenseTracking()
+                    elif self.outMode == 'o':
+                        self.lastXY = [None] * 9
+                        self.lastIndex = 0
+                        self.lastCoords = False
+                    preOutMode = self.outMode
+
+                    # ########## add ##################
+                    # add text in frame
+                    # frame : image
+                    # (0, 100) : coorinates
+                    # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX : font
+                    # 1 : (scale) 
+                    # (0, 255, 0) :  (r,g,b)
+
+                    self.getNav()
+                    try :
+                        bat = 'Battery:' + str(self.navdata['navdata_demo']['battery_percentage'])
+                        gpsLa = 'Latitude:' + str(self.navdata['gps_info']['longitude'])
+                        gpsLo = 'Longitude:' + str(self.navdata['gps_info']['latitude'])
+                        theta = 'Theta:' + str(self.navdata['navdata_demo']['theta'])
+                        phi = 'Phi:' + str(self.navdata['navdata_demo']['psi'])
+                        psi = 'Psi:' + str(self.navdata['navdata_demo']['phi'])
+                        vx = 'vx:' + str(self.navdata['navdata_demo']['vx'])
+                        vy = 'vy:' + str(self.navdata['navdata_demo']['vy'])
+                        vz = 'vz:' + str(self.navdata['navdata_demo']['vz'])
+                        alti = 'altitude:' + str(self.navdata['navdata_demo']['altitude'])
+                        cv2.putText(self.frame, bat, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, gpsLa, (0, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, gpsLo, (0, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, theta, (0, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, phi, (0, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, psi, (0, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, vx, (0, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, vy, (0, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, vz, (0, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                        cv2.putText(self.frame, alti, (0, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.5, SCALAR_RED)
+                    except Exception, e :
+                        self.cout(e)
+
+                    cv2.imshow('Video', self.frame)
+                    #self.tossFrame()
+                    cv2.waitKey(1)
+                else:
+                    # error reading frame
+                    self.cout('error reading video feed')
+
+
         cam.release()    
         cv2.destroyAllWindows()
 
@@ -386,7 +405,7 @@ class VideoAR():
             self.frameFlagQueue.get()
             #self.cout("videoF")
             try:
-                img = Image.fromarray(self.frame)
+                #img = Image.fromarray(self.frame)
                 with BytesIO() as f:
                     img.save(f, format='JPEG')
                     self.frameQueue.put(f.getvalue())

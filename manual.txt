@@ -20,6 +20,7 @@ Drone Table
 252 -	mean filter
 253 -	gaussian filter
 300 - 	initial
+400 - 	isMaps
 
 
 

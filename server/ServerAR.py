@@ -6,7 +6,7 @@ import errno, time
 class ServerAR(threading.Thread):
 
     # exception handle request
-    def __init__(self, host, port, dataQueue, cmdQueue, frameQueue, frameFlagQueue, lock):
+    def __init__(self, host, port, dataQueue, cmdQueue, frameQueue, frameFlagQueue, lock, mapQueue):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
@@ -105,7 +105,7 @@ class ServerAR(threading.Thread):
                     self.isConn = False
                     #drone.stop()
                     break
-
+                if 
                 self.frame()
 
     def frame(self):
