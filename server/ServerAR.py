@@ -6,14 +6,14 @@ import errno, time
 class ServerAR(threading.Thread):
 
     # exception handle request
-    def __init__(self, host, port, dataQueue, cmdQueue, frameQueue, frameFlagQueue, lock, mapQueue):
+    def __init__(self, host, port, dataQueue, cmdQueue, lock, mapQueue):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
         self.dataQueue = dataQueue
         self.cmdQueue = cmdQueue
-        self.frameQueue = frameQueue
-        self.frameFlagQueue = frameFlagQueue
+        # self.frameQueue = frameQueue
+        # self.frameFlagQueue = frameFlagQueue
         self.lock = lock
         self.cmd = 'N'
         self.isConn = False
@@ -34,7 +34,7 @@ class ServerAR(threading.Thread):
         #self.f2.flush()
         #self.f1.close()
         #self.f2.close()
-        self.frameFlagQueue.put('n')
+        # self.frameFlagQueue.put('n')
 
     def __del__(self):
         try:
@@ -105,22 +105,22 @@ class ServerAR(threading.Thread):
                     self.isConn = False
                     #drone.stop()
                     break
-                self.frame()
+                # self.frame()
 
-    def frame(self):
-        if not self.frameQueue.empty():
-            self.lock.acquire()
-            try:
-                f = self.frameQueue.get()
-                self.conn.sendall("msg r " + str(len(f)) + "\n")
-                self.conn.sendall(f)
-                #print "serverF"
-            except Exception, e :
-                print e
-                print "send errer : 2"
-            finally:
-                self.lock.release()
-                self.frameFlagQueue.put('n')
+    # def frame(self):
+    #     if not self.frameQueue.empty():
+    #         self.lock.acquire()
+    #         try:
+    #             f = self.frameQueue.get()
+    #             self.conn.sendall("msg r " + str(len(f)) + "\n")
+    #             self.conn.sendall(f)
+    #             #print "serverF"
+    #         except Exception, e :
+    #             print e
+    #             print "send errer : 2"
+    #         finally:
+    #             self.lock.release()
+    #             self.frameFlagQueue.put('n')
                 
                 
     def cout(self, string):

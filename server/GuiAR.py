@@ -101,6 +101,7 @@ class GuiAR():
         self.videoQueue.put('p')
     def tracking(self):
         self.videoQueue.put('t')
+        self.videoQueue.put('3108')
     def takeoff(self):
         self.dataQueue.put('100')
     def land(self):

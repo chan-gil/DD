@@ -13,6 +13,10 @@ import DetectChars
 import DetectPlates
 import PossiblePlate
 
+# 007986014831
+
+targetNum = 0
+
 # module level variables ##########################################################################
 SCALAR_BLACK = (0.0, 0.0, 0.0)
 SCALAR_WHITE = (255.0, 255.0, 255.0)
@@ -25,11 +29,11 @@ showSteps = True
 
 
 class VideoAR():
-    def __init__(self, lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue):
+    def __init__(self, lock, videoQueue, dataQueue, navDataQueue):
         self.lock = lock
         self.videoQueue = videoQueue
-        self.frameQueue = frameQueue
-        self.frameFlagQueue = frameFlagQueue 
+        # self.frameQueue = frameQueue
+        # self.frameFlagQueue = frameFlagQueue 
         self.dataQueue = dataQueue
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.running = True
@@ -49,6 +53,8 @@ class VideoAR():
         self.lastXY = [None] * 9
         self.lastIndex = 0
         self.isMap = False
+        self.count = 0
+        self.dataExt = False
         # self.text = None
 
 
@@ -64,21 +70,28 @@ class VideoAR():
                 print "\nerror: KNN traning was not successful\n"               # show error message
         finally:
             self.lock.release()
+            
         while True:
             if not self.videoQueue.empty():
                 self.outMode = self.videoQueue.get()
-                self.cout("data = " + self.outMode)
+                # self.cout("data = " + self.outMode)
 
             ##### determine map or streaming ############
             if self.outMode == 'm':
                 self.isMap = not self.isMap
+                self.outMode = 'n'
+
             if self.isMap:
                 if self.outMode == 'q': 
                    break
-                self.frame = cv2.imread('map.png', 0)
-                cv2.imshow('Video', self.frame)
-                cv2.waitKey(1000)
-                self.tossFrame()
+                self.frame = cv2.imread('map.jpeg', 1)
+                cv2.waitKey(10)
+                height, width, a =  self.frame.shape
+                new_h = height / 2
+                new_w = width / 2
+                resize = cv2.resize(self.frame, (new_w, new_h))
+                cv2.imshow('Video', resize)
+                cv2.imwrite("C:\Droopy\map.jpeg", resize)
             
             else :  # get current frame of video
                 self.running, self.frame = cam.read()
@@ -114,12 +127,11 @@ class VideoAR():
                     #         self.frame = cv2.adaptiveThreshold(img_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
                     # tracking
                     elif self.outMode == 't':
-                        # self.lock.acquire()
-                        # try:
-                        #     #self.licenseTracking()
-                        # finally:
-                        #     self.lock.release()
+                        if self.dataExt == False:
+                            # while self.videoQueue.empty():
+                            pass
                         self.licenseTracking()
+
                     elif self.outMode == 'o':
                         self.lastXY = [None] * 9
                         self.lastIndex = 0
@@ -160,13 +172,32 @@ class VideoAR():
                         self.cout(e)
 
                     cv2.imshow('Video', self.frame)
-                    self.tossFrame()
+                    # cv2.imwrite("C:\Droopy\map.png", self.frame)
+                    if self.count == 0:
+                        try:
+                            print 'flag'
+                            self.lock.acquire()
+                            try:
+                                cv2.imwrite("C:\Droopy\map.jpeg", self.frame)
+                            finally:
+                                self.lock.release()
+                        except:
+                            pass
+
+                    self.count = self.count + 1
+
+                    if self.count >= 3:
+                        self.count = 0
+
+                    # self.frame = cv2.imread('C:\Droopy\map.jpeg', 1)
+                    # cv2.imshow('Video', self.frame)
+
+                    # cv2.imwrite("C:\Droopy\map.jpeg", self.frame)
                     cv2.waitKey(1)
                 else:
                     # error reading frame
                     # self.cout('error reading video feed')
                     pass
-
 
         cam.release()    
         cv2.destroyAllWindows()
@@ -177,10 +208,14 @@ class VideoAR():
         listOfPossiblePlates = DetectPlates.detectPlatesInScene(self.frame)           # detect plates
         #print listOfPossiblePlates
         listOfPossiblePlates = DetectChars.detectCharsInPlates(listOfPossiblePlates)        # detect chars in plates
+        
+        global targetNum
 
         targetPlate = -1
-        # targetNum = raw_input("input number : ")
-        targetNum = 3108
+        if self.dataExt == False:
+            targetNum = self.videoQueue.get()
+            self.dataExt = True
+
         targetX = 0
         targetY = 0
         
@@ -401,20 +436,21 @@ class VideoAR():
 
     # end function
 
-    def tossFrame(self):
-        if not self.frameFlagQueue.empty():
-            self.frameFlagQueue.get()
-            #self.cout("videoF")
-            try:
-                img = Image.fromarray(self.frame)
-                with BytesIO() as f:
-                    img.save(f, format='JPEG')
-                    self.frameQueue.put(f.getvalue())
+    ## upload image to URL
+    # def tossFrame(self):
+        # if not self.frameFlagQueue.empty():
+        #     self.frameFlagQueue.get()
+        #     #self.cout("videoF")
+        #     try:
+        #         img = Image.fromarray(self.frame)
+        #         with BytesIO() as f:
+        #             img.save(f, format='JPEG')
+        #             self.frameQueue.put(f.getvalue())
                     
-                #img.show()
-            except Exception, e :
-                self.cout(e)
-                self.cout("toss error : 1")
+        #         #img.show()
+        #     except Exception, e :
+        #         self.cout(e)
+        #         self.cout("toss error : 1")
         
     def initFileName(self, num):
         if num == 0:

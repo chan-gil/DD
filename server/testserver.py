@@ -87,11 +87,13 @@ def consumer(dataQueue, lock, conQueue, drone):
                 if loc[3] == "Tracking":
                     cout(lock, "tracking")
                     videoQueue.put('t')
+                    videoQueue.put(loc[2])
             elif dataIn == 'r':
                 drone.reset()
             # video Queue
             elif dataIn == '200':
-                videoQueue.put('q')
+                # videoQueue.put('q')
+                pass
             elif dataIn == '201':
                 videoQueue.put('r')
             elif dataIn == '202':
@@ -102,7 +104,7 @@ def consumer(dataQueue, lock, conQueue, drone):
     drone.stop()
     cout(lock, "consumer process terminated")
    
-def location(locationQueue):
+def location(locationQueue, lock):
     startX = 37.497492
     startY = 126.955535
     dx = -0.000002
@@ -112,27 +114,28 @@ def location(locationQueue):
         startX = startX + dx
         startY = startY + dy
     locationQueue.put(('q','q'))
+    cout(lock, "location process terminated")
 
     
 
 if __name__ == '__main__':
     global drone
     drone = None
-    '''
+    
     try :
         drone = ARDroneLib.Drone("192.168.1.2")
-    except IOError:
+    except:
         wait = raw_input("-> Cannot connect to drone !\n-> Press return to quit...")
         sys.exit()
-        '''
+
     dataQueue = Queue()
     serverQueue = Queue()
     lock = Lock()
     conQueue = Queue()
     videoQueue = Queue()
     locationQueue = Queue()
-    frameQueue = Queue()
-    frameFlagQueue = Queue()
+    # frameQueue = Queue()
+    # frameFlagQueue = Queue()
     navDataQueue = Queue()
     mapQueue = Queue()
 
@@ -147,33 +150,35 @@ if __name__ == '__main__':
     outMode = 'g'   // gaussian filterf
     '''
     
-    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, frameQueue, frameFlagQueue, lock, mapQueue)
+    server = ServerAR.ServerAR('192.168.123.1', 9000, dataQueue, serverQueue, lock, mapQueue)
     gui = GuiAR.GuiAR(serverQueue, conQueue, videoQueue, locationQueue, dataQueue)
-    video = videoAR.VideoAR(lock, videoQueue, frameQueue, frameFlagQueue, dataQueue, navDataQueue)
-    mapGPS = MapAR.MapAR(locationQueue, mapQueue)
+    video = videoAR.VideoAR(lock, videoQueue, dataQueue, navDataQueue)
+    #mapGPS = MapAR.MapAR(locationQueue, mapQueue)
 
     process_one = Process(target=gui.start, args=())
     process_two = Process(target=video.video, args=())
-    #process_three = Process(target=location, args=(locationQueue, lock))
+    process_three = Process(target=location, args=(locationQueue, lock))
     thread_two = threading.Thread(target=consumer, args=(dataQueue, lock, conQueue, drone))
-    process_four = Process(target=mapGPS.mapping, args = ())
+    #process_four = Process(target=mapGPS.mapping, args = ())
 
-    #drone.set_callback(navDataQueue)
-    #drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
+    if not drone == None:
+        drone.set_callback(navDataQueue)
+        drone.set_config(activate_navdata=True, detect_tag=1, activate_gps=True)
 
+    print 'flag1'
     process_one.start()
     process_two.start()
-    #process_three.start()
+    process_three.start()
     thread_two.start()
     server.start()
-    process_four.start()
+    #process_four.start()
 
     server.join()
     process_one.join()
-    #process_three.join()
+    process_three.join()
     process_two.join()
     thread_two.join()
-    process_four.join()
+    #process_four.join()
 
     print "Test done"
 

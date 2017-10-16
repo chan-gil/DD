@@ -25,6 +25,7 @@ from multiprocessing import Process, Queue, Lock, Event
 delay = 1.5
 gpsCoord = [None] * 2
 fn='testmap.html'
+tmpurl='file://{path}/{mapfile}'.format(path=os.getcwd(),mapfile=fn)
 
 class MapAR():
 	def __init__(self, locationQueue, mapQueue):
@@ -37,7 +38,7 @@ class MapAR():
 				gpsCoord[0], gpsCoord[1] = self.locationQueue.get()
 				if gpsCoord[0] == 'q':
 					break
-				myMap = folium.Map(gpsCoord, zoom_start = 20, tiles = 'Stamen Toner')
+				myMap = folium.Map(gpsCoord, zoom_start = 18, tiles = 'Stamen Toner')
 				folium.Marker(gpsCoord).add_to(myMap)
 				myMap.save(fn)
 				browser = webdriver.Chrome()
@@ -45,8 +46,8 @@ class MapAR():
 				browser.get(tmpurl)
 				# #Give the map tiles some time to load
 				time.sleep(delay)
-				browser.save_screenshot('map.png')
-				# browser.quit()
+				browser.save_screenshot('map.jpeg')
+				browser.quit()
 
 		        # f1 = open('map.png','rb')# open file as binary
 		        # data1 = self.f1.read()
@@ -54,4 +55,5 @@ class MapAR():
 		        # f1.close()
 		        # mapQueue.put(data1)
 			else:
+				print 'no data'
 				pass
